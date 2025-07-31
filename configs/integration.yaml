@@ -1,0 +1,22 @@
+integrations:
+
+  ollama:
+    base_url: "http://localhost:11434"
+    priority: 1
+    timeout: 10
+    default_model: "codellama"
+    
+  vllm:
+    priority: 2  
+    model: "codellama/CodeLlama-7b-hf"
+    
+  groq:
+    priority: 3
+    api_key: "${GROQ_API_KEY}"
+    
+  textgen:
+    base_url: "http://localhost:5000"
+    
+  huggingface:
+    api_key: "${HF_API_KEY}"  # From environment
+    endpoint: "https://api-inference.huggingface.co"

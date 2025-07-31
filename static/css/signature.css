@@ -1,0 +1,25 @@
+.signature-tooltip {
+    position: fixed;
+    background: #2d2d2d;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 14px;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    max-width: 500px;
+}
+
+.signature-title {
+    color: #569cd6;
+}
+
+.active-param {
+    color: #9cdcfe;
+    font-weight: bold;
+}
+
+.signature-tooltip span {
+    margin: 0 2px;
+}

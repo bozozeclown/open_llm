@@ -1,0 +1,11 @@
+project:
+  name: "llm-code-assistant"
+  version: "0.0.1"
+  
+paths:
+  data_raw: "./data/raw"
+  data_processed: "./data/processed"
+  model_checkpoints: "./models"
+  
+languages:
+  priority: ["python", "csharp", "c", "javascript", "typescript", "html", "css"]
