@@ -41,52 +41,47 @@ python
 from client import OpenLLMClient
 client = OpenLLMClient()
 response = client.query("How to reverse a list in Python?")
+
+
 TO DO
+
 Core Improvements
-Implement cross-provider benchmark testing
 
-Add automatic failover when providers go offline
-
-Develop prompt versioning system
+- Implement cross-provider benchmark testing
+- Add automatic failover when providers go offline
+- Develop prompt versioning system
 
 Performance
-Optimize knowledge graph queries
 
-Add GPU memory monitoring for vLLM
-
-Implement query result compression
+- Optimize knowledge graph queries
+- Add GPU memory monitoring for vLLM
+- Implement query result compression
 
 New Features
-Add multi-modal support (images + code)
 
-Develop VS Code extension
-
-Create collaboration history replay
+- Add multi-modal support (images + code)
+- Develop VS Code extension
+- Create collaboration history replay
 
 Documentation
-Write API usage examples
 
-Create architecture diagrams
-
-Add developer onboarding guide
+- Write API usage examples
+- Create architecture diagrams
+- Add developer onboarding guide
 
 Maintenance
-Upgrade to Pydantic v2
 
-Add integration test suite
-
-Set up CI/CD pipeline
+- Upgrade to Pydantic v2
+- Add integration test suite
+- Set up CI/CD pipeline
 
 Contributing
-Fork the repository
 
-Create a feature branch (git checkout -b feature/your-feature)
-
-Commit your changes
-
-Push to the branch
-
-Open a pull request
+- Fork the repository
+- Create a feature branch (git checkout -b feature/your-feature)
+- Commit your changes
+- Push to the branch
+- Open a pull request
 
 License
 MIT License - See LICENSE for details.
