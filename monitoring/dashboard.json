@@ -1,0 +1,14 @@
+{
+  "metrics": [
+    {
+      "title": "Requests/Min",
+      "query": "rate(llm_requests_total[1m])",
+      "type": "line"
+    },
+    {
+      "title": "Latency (99p)",
+      "query": "histogram_quantile(0.99, sum by(le)(rate(llm_response_latency_seconds_bucket[1m])))",
+      "unit": "s"
+    }
+  ]
+}

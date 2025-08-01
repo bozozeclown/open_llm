@@ -1,0 +1,16 @@
+tiers:
+  critical:
+    min_accuracy: 0.96
+    max_latency: 1.2
+    allowed_providers: ["gpt-4", "claude-2"]
+    cost_multiplier: 2.5
+    
+  standard:
+    min_accuracy: 0.88  
+    max_latency: 2.5
+    allowed_providers: ["gpt-3.5", "claude-instant"]
+    
+  economy:
+    min_accuracy: 0.75
+    max_latency: 7.0
+    allowed_providers: ["llama2", "local"]

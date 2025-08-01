@@ -1,0 +1,5 @@
+# configs/prediction.yaml
+cache:
+  warmers: 2
+  max_predictions: 3
+  min_confidence: 0.7

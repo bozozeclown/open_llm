@@ -163,3 +163,45 @@ class KnowledgeGraph:
     def export_gexf(self, path: str):
         """Export graph to GEXF format for external tools"""
         nx.write_gexf(self.graph, path)
+        
+    def find_code_patterns(self, pattern_type: str) -> list:
+        """Enhanced pattern matching for common code structures"""
+        return self._query_graph(
+            f"""
+            MATCH (n:CodePattern {{type: $pattern_type}})
+            RETURN n
+            """,
+            {"pattern_type": pattern_type}
+        )
+    
+    def cache_solution(self, problem_hash: str, solution: Dict):
+        """Store successful solutions for future reuse"""
+        self._store_node("Solution", {
+            "hash": problem_hash,
+            "solution": solution
+        })
+        
+    def find_similar(self, code_snippet: str, threshold: float = 0.8):
+        """Find similar code patterns using vector similarity"""
+        query_embedding = self.embedder.encode(code_snippet)
+        results = []
+        
+        for node in self.graph.nodes(data=True):
+            if 'embedding' in node[1]:
+                similarity = cosine_similarity(
+                    query_embedding,
+                    node[1]['embedding']
+                )
+                if similarity > threshold:
+                    results.append({
+                        'node': node[0],
+                        'similarity': similarity,
+                        'solution': node[1].get('solution')
+                    })
+        
+        return sorted(results, key=lambda x: x['similarity'], reverse=True)
+
+    def cache_solution(self, problem: str, solution: str):
+        """Store successful solutions with embeddings"""
+        embedding = self.embedder.encode(problem)
+        self.graph.add_node(problem, solution=solution, embedding=embedding)
