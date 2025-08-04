@@ -21,17 +21,49 @@ paths:
 # Supported Programming Languages
 # =============================================================================
 languages:
-  priority: ["python", "csharp", "c", "javascript", "typescript", "html", "css"]
+  # Reference to languages configuration file
+  config_file: "./configs/languages.yaml"
   # Reference to quality standards file
   quality_standards_file: "./configs/quality_standards.yaml"
   
 # =============================================================================
-# Security Settings
+# Security Configuration Reference
 # =============================================================================
 security:
-  allowed_hosts: ["localhost", "127.0.0.1"]
-  cors_origins: ["http://localhost:3000", "http://localhost:8000"]
-  max_request_size: 10485760  # 10MB
+  # Reference to security configuration file
+  config_file: "./configs/security.yaml"
+  
+# =============================================================================
+# Database Configuration Reference
+# =============================================================================
+database:
+  # Reference to database configuration file
+  config_file: "./configs/database.yaml"
+  
+# =============================================================================
+# Integration Configuration Reference
+# =============================================================================
+integration:
+  # Reference to integration configuration file
+  config_file: "./configs/integration.yaml"
+  
+# =============================================================================
+# Model Configuration Reference
+# =============================================================================
+models:
+  # Reference to model configuration file
+  config_file: "./configs/model.yaml"
+  
+# =============================================================================
+# API Settings
+# =============================================================================
+api:
+  # Default timeout in seconds for API requests
+  default_timeout: 30
+  # Maximum timeout in seconds
+  max_timeout: 120
+  # Timeout for analysis requests (typically longer)
+  analysis_timeout: 60
 
 # =============================================================================
 # Logging Configuration

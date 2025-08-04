@@ -3,9 +3,12 @@ import os
 import re
 from typing import Optional, Dict, Any
 from pathlib import Path
+from core.config_loader import ConfigLoader
 
 class InputValidator:
-    """Validate user inputs for CLI commands."""
+    def __init__(self):
+        self.config_loader = ConfigLoader()
+        self.supported_languages = self.config_loader.get_supported_languages()
     
     @staticmethod
     def validate_file_path(file_path: str, must_exist: bool = True) -> bool:
@@ -22,18 +25,11 @@ class InputValidator:
         
         return True
     
-    @staticmethod
-    def validate_language(language: str) -> bool:
+    def validate_language(self, language: str) -> bool:
         """Validate programming language."""
-        supported_languages = {
-            'python', 'javascript', 'typescript', 'java', 'cpp', 'c',
-            'csharp', 'go', 'rust', 'php', 'ruby', 'swift', 'kotlin',
-            'scala', 'html', 'css', 'sql', 'bash', 'markdown'
-        }
-        
-        if language.lower() not in supported_languages:
+        if language.lower() not in self.supported_languages:
             print(f"❌ Unsupported language: {language}")
-            print(f"   Supported languages: {', '.join(sorted(supported_languages))}")
+            print(f"   Supported languages: {', '.join(sorted(self.supported_languages))}")
             return False
         
         return True
@@ -87,7 +83,7 @@ class InputValidator:
         """Validate API URL."""
         url_pattern = re.compile(
             r'^https?://'  # http:// or https://
-            r'([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}'  # domain
+            r'([a-zA-Z0-9\-]+\.)*[a-zA-Z0-9\-]+\.[a-zA-Z]{2,}'  # domain
             r'(:[0-9]+)?'  # optional port
             r'(/.*)?$'  # optional path
         )
@@ -113,8 +109,6 @@ class InputValidator:
         return True
 
 class ConfigValidator:
-    """Validate configuration files."""
-    
     @staticmethod
     def validate_config_file(config_path: str) -> bool:
         """Validate configuration file existence and format."""

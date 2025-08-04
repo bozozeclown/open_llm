@@ -10,6 +10,7 @@ plugins:
       default_model: "codellama"
       timeout: 30
       batch_size: 1
+      priority: 1
 
   # vLLM (High-Performance Inference)
   vllm:
@@ -19,6 +20,7 @@ plugins:
       tensor_parallel_size: 1
       gpu_memory_utilization: 0.9
       max_batch_size: 2048
+      priority: 0
 
   # HuggingFace Transformers
   huggingface:
@@ -29,6 +31,7 @@ plugins:
       device: "auto"
       quantize: false
       batch_size: 2
+      priority: 3
 
   # Text Generation WebUI
   textgen:
@@ -38,6 +41,7 @@ plugins:
       api_key: "${TEXTGEN_API_KEY}"
       batch_size: 4
       timeout: 45
+      priority: 2
 
   # Grok AI
   grok:
@@ -46,6 +50,7 @@ plugins:
       api_key: "${GROQ_API_KEY}"
       rate_limit: 5
       timeout: 15
+      priority: 4
 
   # LM Studio
   lmstudio:
@@ -54,29 +59,109 @@ plugins:
       base_url: "http://localhost:1234"
       timeout: 60
       batch_support: false
+      priority: 5
 
 # Global integration settings
 settings:
-  default_timeout: 30
-  priority_order:
-    - "vllm"
-    - "ollama" 
-    - "grok"
-    - "huggingface"
-    - "textgen"
-    - "lmstudio"
+  # Default model selection strategy
+  default_model: "codellama"
+  # Provider priority order (lower number = higher priority)
+  priority_order: ["vllm", "ollama", "textgen", "huggingface", "grok", "lmstudio"]
+  # Fallback to next provider if current fails
+  fallback_enabled: true
+  # Maximum number of fallback attempts
+  max_fallbacks: 3
+  # Load balancing strategy
+  load_balancing: "priority"  # priority, round_robin, weighted
 
 # Batch processing settings
 batching:
   enabled: true
   max_batch_size: 8
   max_wait_ms: 50
+  timeout_multiplier: 1.5
 
 # Monitoring settings
 health_check_interval: 60
+  # Provider health check timeout
+  health_check_timeout: 10
 
 # Load balancing settings
 load_balancing:
   update_interval: 10
   min_requests: 20
   priority_bump: 2.0
+  # Performance tracking
+  track_metrics: true
+  metrics_window: 300  # seconds
+
+# Model routing rules
+routing:
+  # Route specific tasks to specific providers
+  task_routing:
+    code_analysis: ["vllm", "ollama"]
+    code_generation: ["vllm", "ollama", "textgen"]
+    general_query: ["grok", "huggingface"]
+    security_analysis: ["vllm", "ollama"]
+  
+  # Route by model size
+    size_routing:
+      small: ["grok", "huggingface"]
+      medium: ["ollama", "textgen"]
+      large: ["vllm"]
+  
+  # Route by language
+  language_routing:
+    python: ["vllm", "ollama"]
+    javascript: ["vllm", "ollama", "textgen"]
+    other: ["grok", "huggingface"]
+
+# Provider capabilities
+capabilities:
+  vllm:
+    supports_batching: true
+    max_tokens: 4096
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  ollama:
+    supports_batching: false
+    max_tokens: 2048
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  textgen:
+    supports_batching: true
+    max_tokens: 2048
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  huggingface:
+    supports_batching: true
+    max_tokens: 4096
+    streaming: false
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  grok:
+    supports_batching: false
+    max_tokens: 4096
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  lmstudio:
+    supports_batching: false
+    max_tokens: 2048
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true

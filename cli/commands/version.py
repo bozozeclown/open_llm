@@ -1,3 +1,4 @@
+# cli/commands/version.py
 import click
 import requests
 import json
@@ -8,6 +9,9 @@ def version_command(ctx, action: str, description: str, author: str):
     config = ctx.obj['config']
     api_url = config.get('api_url')
     api_key = config.get('api_key')
+    
+    # Use default timeout from configuration
+    timeout = config.get('timeout', 30)
     
     headers = {
         'Authorization': f'Bearer {api_key}',
@@ -25,7 +29,7 @@ def version_command(ctx, action: str, description: str, author: str):
                 f"{api_url}/versions",
                 headers=headers,
                 json=payload,
-                timeout=config.get('timeout', 30)
+                timeout=timeout
             )
             
             if response.status_code == 200:
@@ -47,7 +51,7 @@ def version_command(ctx, action: str, description: str, author: str):
             response = requests.get(
                 f"{api_url}/versions",
                 headers=headers,
-                timeout=config.get('timeout', 30)
+                timeout=timeout
             )
             
             if response.status_code == 200:

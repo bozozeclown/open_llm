@@ -1,0 +1,178 @@
+# =============================================================================
+# Security Configuration
+# =============================================================================
+security:
+  # API Security
+  api:
+    # Rate limiting
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 100
+      burst_limit: 10
+    
+    # API Key requirements
+    api_key:
+      min_length: 16
+      max_length: 64
+      allowed_chars: "alphanumeric"
+      rotation_days: 90
+    
+    # JWT Settings
+    jwt:
+      algorithm: "HS256"
+      expiration_hours: 24
+      refresh_expiration_days: 7
+  
+  # Application Security
+  application:
+    # Allowed hosts
+    allowed_hosts: ["localhost", "127.0.0.1"]
+    
+    # CORS settings
+    cors:
+      enabled: true
+      allowed_origins: ["http://localhost:3000", "http://localhost:8000"]
+      allowed_methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowed_headers: ["Content-Type", "Authorization"]
+      allow_credentials: true
+    
+    # Request size limits
+    max_request_size: 10485760  # 10MB
+    max_file_upload_size: 52428800  # 50MB
+    
+    # Session security
+    session:
+      timeout_minutes: 30
+      secure_cookies: true
+      same_site: "Strict"
+  
+  # Code Analysis Security
+  code_analysis:
+    # Banned patterns (security risks)
+    banned_patterns:
+      - "eval("
+      - "exec("
+      - "system("
+      - "os.popen"
+      - "subprocess.run"
+      - "subprocess.Popen"
+      - "subprocess.call"
+      - "subprocess.check_output"
+      - "pickle.loads"
+      - "marshal.loads"
+      - "exec("
+      - "__import__"
+      - "shell_exec"
+      - "passthru"
+      - "system("
+      - "exec("
+      - "proc_open"
+      - "popen"
+    
+    # Credential detection patterns
+    credential_patterns:
+      - "password\\s*=\\s*[\"'][^\"']+[\"']"
+      - "api_key\\s*=\\s*[\"'][^\"']+[\"']"
+      - "secret\\s*=\\s*[\"'][^\"']+[\"']"
+      - "token\\s*=\\s*[\"'][^\"']+[\"']"
+      - "private_key\\s*=\\s*[\"'][^\"']+[\"']"
+      - "auth\\s*=\\s*[\"'][^\"']+[\"']"
+    
+    # JavaScript-specific security patterns
+    js_patterns:
+      - "eval\\s*\\("
+      - "new\\s+Function\\s*\\("
+      - "setTimeout\\s*\\([^,]*,\\s*[\"'][^\"']*[\"']\\)"
+      - "setInterval\\s*\\([^,]*,\\s*[\"'][^\"']*[\"']\\)"
+      - "document\\.write\\s*\\("
+      - "innerHTML\\s*="
+      - "outerHTML\\s*="
+      - "execScript\\s*\\("
+      - "\\.innerHTML\\s*=\\s*.*\\+"
+      - "\\.outerHTML\\s*=\\s*.*\\+"
+      - "document\\.write\\s*\\([^)]*\\+"
+    
+    # Security scoring weights
+    scoring:
+      dangerous_pattern_penalty: 0.2
+      credential_pattern_penalty: 0.3
+      xss_vulnerability_penalty: 0.15
+      max_penalty: 1.0
+  
+  # Model Security
+  model:
+    # Model execution security
+    sandbox_enabled: true
+    allow_internet_access: false
+    max_execution_time: 30  # seconds
+    
+    # Input sanitization
+    input_sanitization:
+      enabled: true
+      max_input_length: 10000
+      allowed_content_types: ["text/plain", "application/json"]
+    
+    # Output filtering
+    output_filtering:
+      enabled: true
+      filter_secrets: true
+      filter_personal_info: true
+  
+  # Data Security
+  data:
+    # Encryption settings
+    encryption:
+      enabled: true
+      algorithm: "AES-256-GCM"
+      key_rotation_days: 30
+    
+    # Data retention
+    retention:
+      analysis_results_days: 30
+      session_data_days: 7
+      logs_days: 90
+    
+    # Backup security
+    backup:
+      encrypted: true
+      offsite: true
+      frequency: "daily"
+  
+  # Network Security
+  network:
+    # SSL/TLS settings
+    ssl:
+      enabled: true
+      min_version: "TLSv1.2"
+      cipher_suites: ["ECDHE-RSA-AES256-GCM-SHA384"]
+    
+    # Firewall rules
+    firewall:
+      enabled: true
+      allowed_ports: [8000, 443, 80]
+      blocked_ips: []
+    
+    # DDoS protection
+    ddos_protection:
+      enabled: true
+      max_requests_per_second: 100
+      ban_duration_minutes: 60
+  
+  # Monitoring and Logging
+  monitoring:
+    # Security event logging
+    log_security_events: true
+    log_level: "INFO"
+    
+    # Alert thresholds
+    alerts:
+      failed_login_attempts: 5
+      suspicious_patterns: 10
+      rate_limit_violations: 20
+    
+    # Audit logging
+    audit:
+      enabled: true
+      log_api_calls: true
+      log_data_access: true
+      retention_days: 365

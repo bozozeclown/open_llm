@@ -1,3 +1,4 @@
+# cli/commands/session.py
 import click
 import requests
 import json
@@ -8,6 +9,9 @@ def session_command(ctx, session_name: str, code: str, language: str, public: bo
     config = ctx.obj['config']
     api_url = config.get('api_url')
     api_key = config.get('api_key')
+    
+    # Use default timeout from configuration
+    timeout = config.get('timeout', 30)
     
     headers = {
         'Authorization': f'Bearer {api_key}',
@@ -26,7 +30,7 @@ def session_command(ctx, session_name: str, code: str, language: str, public: bo
             f"{api_url}/collaboration/sessions",
             headers=headers,
             json=payload,
-            timeout=config.get('timeout', 30)
+            timeout=timeout
         )
         
         if response.status_code == 200:

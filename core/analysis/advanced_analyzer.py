@@ -1,4 +1,4 @@
-# core/analysis/advanced_analyser.py
+# core/analysis/advanced_analyzer.py
 import ast
 import re
 import numpy as np
@@ -8,7 +8,7 @@ from enum import Enum
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import networkx as nx
-from .config_loader import ConfigLoader
+from ..config_loader import ConfigLoader
 
 class CodeComplexity(Enum):
     LOW = "low"
@@ -42,24 +42,66 @@ class CodeMetrics:
     comment_ratio: float
 
 class AdvancedCodeAnalyzer:
+    """
+    Advanced code analyzer with comprehensive analysis capabilities.
+    
+    This analyzer provides detailed code analysis including:
+    - Complexity analysis
+    - Maintainability scoring
+    - Reliability assessment
+    - Security vulnerability detection
+    - Code smell identification
+    - Language-specific analysis
+    """
+    
     def __init__(self, config_path: str = "./configs/base.yaml"):
+        """
+        Initialize the advanced code analyzer.
+        
+        Args:
+            config_path: Path to configuration file
+        """
         self.vectorizer = TfidfVectorizer(max_features=1000)
         self.config_loader = ConfigLoader(config_path)
         self.config = self.config_loader.get_config()
         self.code_patterns = self._load_code_patterns()
         self.security_patterns = self._load_security_patterns()
         self.quality_standards = self.config.get('quality_standards', {})
+        self.security_config = self.config_loader.get_code_analysis_security_config()
+        
+        # Cache for analyzed code
+        self._analysis_cache = {}
     
     def analyze_code(self, code: str, language: str) -> CodeMetrics:
-        """Comprehensive code analysis with language-specific handling"""
+        """
+        Analyze code and return comprehensive metrics.
+        
+        Args:
+            code: The source code to analyze
+            language: The programming language of the code
+            
+        Returns:
+            CodeMetrics object with analysis results
+        """
+        # Check cache first
+        cache_key = f"{hash(code)}_{language}"
+        if cache_key in self._analysis_cache:
+            return self._analysis_cache[cache_key]
+        
         language = language.lower()
         
+        # Route to language-specific analyzer
         if language == "python":
-            return self._analyze_python_code(code)
+            result = self._analyze_python_code(code)
         elif language == "javascript":
-            return self._analyze_javascript_code(code)
+            result = self._analyze_javascript_code(code)
         else:
-            return self._analyze_generic_code(code)
+            result = self._analyze_generic_code(code)
+        
+        # Cache the result
+        self._analysis_cache[cache_key] = result
+        
+        return result
     
     def _analyze_python_code(self, code: str) -> CodeMetrics:
         """Analyze Python code with AST"""
@@ -181,15 +223,18 @@ class AdvancedCodeAnalyzer:
         if any(keyword in code.lower() for keyword in error_handling_keywords):
             reliability += 0.2
         
-        # Security check using common dangerous patterns
+        # Security check using centralized dangerous patterns
         security_score = 0.7
-        dangerous_patterns = self.quality_standards.get('banned_patterns', [])
+        banned_patterns = self.security_config.get('banned_patterns', [])
+        scoring_config = self.security_config.get('scoring', {})
+        dangerous_pattern_penalty = scoring_config.get('dangerous_pattern_penalty', 0.2)
+        max_penalty = scoring_config.get('max_penalty', 1.0)
         
-        for pattern in dangerous_patterns:
+        for pattern in banned_patterns:
             if re.search(pattern, code, re.IGNORECASE):
-                security_score -= 0.2
+                security_score -= dangerous_pattern_penalty
         
-        security_score = max(0.0, min(1.0, security_score))
+        security_score = max(0.0, min(max_penalty, security_score))
         
         # Basic issue detection
         issues = []
@@ -297,28 +342,30 @@ class AdvancedCodeAnalyzer:
         return max(0.0, min(1.0, score))
     
     def _calculate_security_score(self, tree: ast.AST, code: str) -> float:
-        """Calculate security score for Python (0-1)"""
+        """Calculate security score for Python (0-1) using centralized security config"""
         score = 1.0
         
-        # Check for dangerous patterns from configuration
-        dangerous_patterns = self.quality_standards.get('banned_patterns', [])
+        # Get security configuration
+        banned_patterns = self.security_config.get('banned_patterns', [])
+        credential_patterns = self.security_config.get('credential_patterns', [])
+        scoring_config = self.security_config.get('scoring', {})
         
-        for pattern in dangerous_patterns:
+        # Get penalty values from config
+        dangerous_pattern_penalty = scoring_config.get('dangerous_pattern_penalty', 0.2)
+        credential_pattern_penalty = scoring_config.get('credential_pattern_penalty', 0.3)
+        max_penalty = scoring_config.get('max_penalty', 1.0)
+        
+        # Check for dangerous patterns from configuration
+        for pattern in banned_patterns:
             if re.search(pattern, code):
-                score -= 0.2
+                score -= dangerous_pattern_penalty
         
         # Check for hardcoded credentials
-        credential_patterns = [
-            r'password\s*=\s*["\'][^"\']+["\']',
-            r'api_key\s*=\s*["\'][^"\']+["\']',
-            r'secret\s*=\s*["\'][^"\']+["\']'
-        ]
-        
         for pattern in credential_patterns:
             if re.search(pattern, code):
-                score -= 0.3
+                score -= credential_pattern_penalty
         
-        return max(0.0, min(1.0, score))
+        return max(0.0, min(max_penalty, score))
     
     def _detect_code_smells(self, tree: ast.AST, code: str, code_smell_thresholds: Dict[str, Any]) -> List[CodeIssue]:
         """Detect Python-specific code smells using configuration"""
@@ -480,28 +527,30 @@ class AdvancedCodeAnalyzer:
         return max(0.0, min(1.0, score))
     
     def _calculate_js_security_score(self, code: str) -> float:
-        """Calculate JavaScript code security score"""
+        """Calculate JavaScript code security score using centralized security config"""
         score = 0.7
         
-        # Check for dangerous patterns from configuration
-        dangerous_patterns = self.quality_standards.get('banned_patterns', [])
+        # Get security configuration
+        banned_patterns = self.security_config.get('banned_patterns', [])
+        js_patterns = self.security_config.get('js_patterns', [])
+        scoring_config = self.security_config.get('scoring', {})
         
-        for pattern in dangerous_patterns:
+        # Get penalty values from config
+        dangerous_pattern_penalty = scoring_config.get('dangerous_pattern_penalty', 0.2)
+        xss_vulnerability_penalty = scoring_config.get('xss_vulnerability_penalty', 0.15)
+        max_penalty = scoring_config.get('max_penalty', 1.0)
+        
+        # Check for dangerous patterns from configuration
+        for pattern in banned_patterns:
             if re.search(pattern, code, re.IGNORECASE):
-                score -= 0.2
+                score -= dangerous_pattern_penalty
         
         # Check for XSS vulnerabilities
-        xss_patterns = [
-            r'\.innerHTML\s*=\s*.*\+',
-            r'\.outerHTML\s*=\s*.*\+',
-            r'document\.write\s*\([^)]*\+'
-        ]
-        
-        for pattern in xss_patterns:
+        for pattern in js_patterns:
             if re.search(pattern, code, re.IGNORECASE):
-                score -= 0.15
+                score -= xss_vulnerability_penalty
         
-        return max(0.0, min(1.0, score))
+        return max(0.0, min(max_penalty, score))
     
     def _detect_js_code_smells(self, code: str, code_smell_thresholds: Dict[str, Any]) -> List[CodeIssue]:
         """Detect JavaScript-specific code smells"""
@@ -659,3 +708,14 @@ class AdvancedCodeAnalyzer:
             })
         
         return improvements
+    
+    def clear_cache(self):
+        """Clear the analysis cache"""
+        self._analysis_cache.clear()
+    
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get cache statistics"""
+        return {
+            "cache_size": len(self._analysis_cache),
+            "cache_enabled": True
+        }

@@ -1,0 +1,129 @@
+# =============================================================================
+# Database Configuration
+# =============================================================================
+database:
+  # Default database type
+  default_type: "postgresql"
+  
+  # Environment-specific configurations
+  environments:
+    development:
+      host: "localhost"
+      port: 5432
+      database: "openllm"
+      username: "user"
+      password: "password"
+      pool_size: 10
+      max_overflow: 20
+      pool_timeout: 30
+      pool_recycle: 3600
+      
+    testing:
+      host: "localhost"
+      port: 5432
+      database: "openllm_test"
+      username: "postgres"
+      password: "postgres"
+      pool_size: 5
+      max_overflow: 10
+      pool_timeout: 30
+      pool_recycle: 3600
+      
+    production:
+      host: "${DB_HOST}"
+      port: "${DB_PORT:-5432}"
+      database: "${DB_NAME}"
+      username: "${DB_USER}"
+      password: "${DB_PASSWORD}"
+      pool_size: 20
+      max_overflow: 30
+      pool_timeout: 30
+      pool_recycle: 3600
+      ssl_mode: "require"
+  
+  # Redis configuration
+  redis:
+    development:
+      host: "localhost"
+      port: 6379
+      db: 0
+      password: ""
+      pool_size: 10
+      timeout: 5
+      
+    testing:
+      host: "localhost"
+      port: 6379
+      db: 1
+      password: ""
+      pool_size: 5
+      timeout: 5
+      
+    production:
+      host: "${REDIS_HOST}"
+      port: "${REDIS_PORT:-6379}"
+      db: "${REDIS_DB:-0}"
+      password: "${REDIS_PASSWORD}"
+      pool_size: 20
+      timeout: 5
+  
+  # Connection settings
+  connection:
+    # Connection timeout in seconds
+    timeout: 30
+    # Command timeout in seconds
+    command_timeout: 60
+    # Maximum connection attempts
+    max_retries: 3
+    # Retry delay in seconds
+    retry_delay: 1
+  
+  # Pool settings
+  pool:
+    # Connection pool size
+    size: 10
+    # Maximum overflow connections
+    max_overflow: 20
+    # Pool timeout in seconds
+    timeout: 30
+    # Connection recycle time in seconds
+    recycle: 3600
+    # Connection pre-ping
+    pre_ping: true
+  
+  # Migration settings
+  migrations:
+    # Auto-run migrations on startup
+    auto_run: true
+    # Migration directory
+    directory: "./migrations"
+    # Migration table
+    table: "alembic_version"
+  
+  # Backup settings
+  backup:
+    # Enable automatic backups
+    enabled: true
+    # Backup schedule (cron format)
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    # Backup retention days
+    retention_days: 30
+    # Backup directory
+    directory: "./backups/database"
+    # Compression
+    compression: true
+    # Encryption
+    encryption: true
+  
+  # Monitoring
+  monitoring:
+    # Enable connection monitoring
+    enabled: true
+    # Slow query threshold in seconds
+    slow_query_threshold: 1.0
+    # Log slow queries
+    log_slow_queries: true
+    # Connection pool monitoring
+    pool_monitoring: true
+    # Health check interval in seconds
+    health_check_interval: 60

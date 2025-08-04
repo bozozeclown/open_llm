@@ -1,3 +1,4 @@
+# cli/commands/analyze.py
 import click
 import requests
 import json
@@ -14,6 +15,9 @@ def analyze_command(ctx, file_path: str, language: str, analysis_type: str):
     if not api_key:
         click.echo("❌ API key not configured. Please set OPENLLM_API_KEY environment variable", err=True)
         return
+    
+    # Use analysis timeout from configuration
+    timeout = config.get('analysis_timeout', 60)
     
     # Read the file
     try:
@@ -47,7 +51,7 @@ def analyze_command(ctx, file_path: str, language: str, analysis_type: str):
             f"{api_url}/process",
             headers=headers,
             json=payload,
-            timeout=config.get('timeout', 60)
+            timeout=timeout
         )
         
         if response.status_code == 200:

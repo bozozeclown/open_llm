@@ -1,0 +1,234 @@
+# =============================================================================
+# Programming Languages Configuration
+# =============================================================================
+languages:
+  # Priority order for language detection and processing
+  priority: [
+    "python", "csharp", "c", "javascript", "typescript", 
+    "html", "css", "java", "cpp", "go", "rust", "php", 
+    "ruby", "swift", "kotlin", "scala", "sql", "bash", 
+    "markdown", "r", "lua", "perl", "haskell", "elixir", 
+    "clojure", "fsharp", "vbnet", "dart", "julia"
+  ]
+  
+  # Language-specific settings
+  settings:
+    python:
+      extensions: [".py", ".pyw"]
+      shebang: ["#!/usr/bin/python", "#!/usr/bin/env python"]
+      comment_prefix: "#"
+      supports_ast: true
+      
+    javascript:
+      extensions: [".js", ".jsx", ".mjs"]
+      shebang: ["#!/usr/bin/node", "#!/usr/bin/env node"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    typescript:
+      extensions: [".ts", ".tsx"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    java:
+      extensions: [".java"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    csharp:
+      extensions: [".cs"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    c:
+      extensions: [".c", ".h"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    cpp:
+      extensions: [".cpp", ".hpp", ".cc", ".cxx"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    go:
+      extensions: [".go"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    rust:
+      extensions: [".rs"]
+      comment_prefix: ["//", "/*", "///"]
+      supports_ast: false
+      
+    php:
+      extensions: [".php", ".php3", ".php4", ".php5", ".phtml"]
+      comment_prefix: ["//", "#", "/*"]
+      supports_ast: false
+      
+    ruby:
+      extensions: [".rb"]
+      comment_prefix: ["#"]
+      supports_ast: false
+      
+    swift:
+      extensions: [".swift"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    kotlin:
+      extensions: [".kt", ".kts"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    scala:
+      extensions: [".scala"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    html:
+      extensions: [".html", ".htm"]
+      comment_prefix: ["<!--"]
+      supports_ast: false
+      
+    css:
+      extensions: [".css", ".scss", ".sass", ".less"]
+      comment_prefix: ["/*", "//"]
+      supports_ast: false
+      
+    sql:
+      extensions: [".sql"]
+      comment_prefix: ["--", "/*"]
+      supports_ast: false
+      
+    bash:
+      extensions: [".sh", ".bash", ".zsh"]
+      shebang: ["#!/bin/bash", "#!/bin/sh", "#!/usr/bin/env bash"]
+      comment_prefix: ["#"]
+      supports_ast: false
+      
+    markdown:
+      extensions: [".md", ".markdown"]
+      supports_ast: false
+      
+    r:
+      extensions: [".r", ".R"]
+      comment_prefix: ["#"]
+      supports_ast: false
+      
+    lua:
+      extensions: [".lua"]
+      comment_prefix: ["--", "---[["]
+      supports_ast: false
+      
+    perl:
+      extensions: [".pl", ".pm"]
+      shebang: ["#!/usr/bin/perl", "#!/usr/bin/env perl"]
+      comment_prefix: ["#"]
+      supports_ast: false
+      
+    haskell:
+      extensions: [".hs", ".lhs"]
+      comment_prefix: ["--", "{-"]
+      supports_ast: false
+      
+    elixir:
+      extensions: [".ex", ".exs"]
+      comment_prefix: ["#"]
+      supports_ast: false
+      
+    clojure:
+      extensions: [".clj", ".cljs", ".cljc"]
+      comment_prefix: [";"]
+      supports_ast: false
+      
+    fsharp:
+      extensions: [".fs", ".fsi", ".fsx"]
+      comment_prefix: ["//", "(*"]
+      supports_ast: false
+      
+    vbnet:
+      extensions: [".vb"]
+      comment_prefix: ["'", "REM"]
+      supports_ast: false
+      
+    dart:
+      extensions: [".dart"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      
+    julia:
+      extensions: [".jl"]
+      comment_prefix: ["#", "#="]
+      supports_ast: false
+  
+  # Language detection rules
+  detection:
+    # File extension mapping
+    extension_map:
+      ".py": "python"
+      ".pyw": "python"
+      ".js": "javascript"
+      ".jsx": "javascript"
+      ".mjs": "javascript"
+      ".ts": "typescript"
+      ".tsx": "typescript"
+      ".java": "java"
+      ".cs": "csharp"
+      ".c": "c"
+      ".h": "c"
+      ".cpp": "cpp"
+      ".hpp": "cpp"
+      ".cc": "cpp"
+      ".cxx": "cpp"
+      ".go": "go"
+      ".rs": "rust"
+      ".php": "php"
+      ".php3": "php"
+      ".php4": "php"
+      ".php5": "php"
+      ".phtml": "php"
+      ".rb": "ruby"
+      ".swift": "swift"
+      ".kt": "kotlin"
+      ".kts": "kotlin"
+      ".scala": "scala"
+      ".html": "html"
+      ".htm": "html"
+      ".css": "css"
+      ".scss": "css"
+      ".sass": "css"
+      ".less": "css"
+      ".sql": "sql"
+      ".sh": "bash"
+      ".bash": "bash"
+      ".zsh": "bash"
+      ".md": "markdown"
+      ".markdown": "markdown"
+      ".r": "r"
+      ".R": "r"
+      ".lua": "lua"
+      ".pl": "perl"
+      ".pm": "perl"
+      ".hs": "haskell"
+      ".lhs": "haskell"
+      ".ex": "elixir"
+      ".exs": "elixir"
+      ".clj": "clojure"
+      ".cljs": "clojure"
+      ".cljc": "clojure"
+      ".fs": "fsharp"
+      ".fsi": "fsharp"
+      ".fsx": "fsharp"
+      ".vb": "vbnet"
+      ".dart": "dart"
+      ".jl": "julia"
+    
+    # Shebang patterns for language detection
+    shebang_patterns:
+      python: ["python"]
+      javascript: ["node"]
+      bash: ["bash", "sh", "zsh"]
+      perl: ["perl"]
+      ruby: ["ruby"]
+      lua: ["lua"]
+      julia: ["julia"]

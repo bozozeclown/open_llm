@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: testing
 
     services:
       postgres:
@@ -71,8 +73,8 @@ jobs:
       run: |
         pytest tests/ -v --cov=core --cov-report=xml --cov-report=term-missing
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/openllm_test
-        REDIS_URL: redis://localhost:6379/1
+        # Database and Redis URLs are now loaded from configs/database.yaml based on ENVIRONMENT=testing
+        ENVIRONMENT: testing
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

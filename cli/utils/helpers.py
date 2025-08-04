@@ -4,6 +4,7 @@ import json
 import yaml
 from typing import Dict, Any, Optional
 from pathlib import Path
+from core.config_loader import ConfigLoader
 
 def load_config(config_path: str) -> Dict[str, Any]:
     """Load configuration from YAML file."""
@@ -44,30 +45,9 @@ def validate_api_key(api_key: str) -> bool:
     return len(api_key) >= 16 and api_key.isalnum()
 
 def get_file_language(file_path: str) -> Optional[str]:
-    """Determine programming language from file extension."""
-    ext = Path(file_path).suffix.lower()
-    language_map = {
-        '.py': 'python',
-        '.js': 'javascript',
-        '.ts': 'typescript',
-        '.java': 'java',
-        '.cpp': 'cpp',
-        '.c': 'c',
-        '.cs': 'csharp',
-        '.go': 'go',
-        '.rs': 'rust',
-        '.php': 'php',
-        '.rb': 'ruby',
-        '.swift': 'swift',
-        '.kt': 'kotlin',
-        '.scala': 'scala',
-        '.html': 'html',
-        '.css': 'css',
-        '.sql': 'sql',
-        '.sh': 'bash',
-        '.md': 'markdown',
-    }
-    return language_map.get(ext)
+    """Determine programming language from file extension using centralized configuration."""
+    config_loader = ConfigLoader()
+    return config_loader.detect_language_from_file(file_path)
 
 def truncate_text(text: str, max_length: int = 100) -> str:
     """Truncate text to maximum length."""
