@@ -22,20 +22,9 @@ paths:
 # =============================================================================
 languages:
   priority: ["python", "csharp", "c", "javascript", "typescript", "html", "css"]
+  # Reference to quality standards file
+  quality_standards_file: "./configs/quality_standards.yaml"
   
-# =============================================================================
-# Quality Standards
-# =============================================================================
-quality_standards:
-  min_complexity: 0.4  # 0-1 scale
-  required_keys: ["answer", "explanation"]  # For structured responses
-  banned_patterns:
-    - "eval("
-    - "system("
-    - "os.popen"
-    - "subprocess.run"
-    - "exec("
-
 # =============================================================================
 # Security Settings
 # =============================================================================

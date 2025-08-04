@@ -16,9 +16,80 @@ quality_standards:
     - "subprocess.run"
     - "exec("
     - "__import__"
+    - "pickle.loads"
+    - "marshal.loads"
+    - "shell_exec"
+    - "passthru"
   
   # Maximum response length
   max_response_length: 5000
   
   # Minimum confidence score
   min_confidence: 0.7
+  
+  # Language-specific standards
+  language_specific:
+    python:
+      max_function_length: 50
+      max_class_length: 200
+      naming_convention: "snake_case"
+      required_docstring_coverage: 0.8
+    
+    javascript:
+      max_function_length: 40
+      max_class_length: 150
+      naming_convention: "camelCase"
+      required_docstring_coverage: 0.6
+    
+    csharp:
+      max_function_length: 60
+      max_class_length: 300
+      naming_convention: "PascalCase"
+      required_docstring_coverage: 0.7
+    
+    generic:
+      max_function_length: 100
+      max_class_length: 500
+      naming_convention: "any"
+      required_docstring_coverage: 0.5
+  
+  # Severity levels for issues
+  severity_levels:
+    low:
+      score_impact: 0.1
+      description: "Minor improvement opportunity"
+    medium:
+      score_impact: 0.3
+      description: "Should be addressed"
+    high:
+      score_impact: 0.5
+      description: "Important to fix"
+    critical:
+      score_impact: 0.8
+      description: "Must be fixed immediately"
+  
+  # Code smell thresholds
+  code_smells:
+    long_method:
+      python: 50
+      javascript: 40
+      csharp: 60
+      generic: 100
+    
+    large_class:
+      python: 200
+      javascript: 150
+      csharp: 300
+      generic: 500
+    
+    magic_number:
+      allowed_values: [0, 1, -1, 0.0, 1.0, -1.0]
+      exceptions: ["config files", "test files"]
+    
+    complex_conditional:
+      max_nesting_level: 3
+      max_conditions: 5
+    
+    long_parameter_list:
+      max_parameters: 5
+      max_parameters_with_defaults: 8
