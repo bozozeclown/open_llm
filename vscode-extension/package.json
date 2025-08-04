@@ -1,0 +1,79 @@
+// vscode-extension/package.json
+{
+    "name": "open-llm-code-assistant",
+    "displayName": "Open LLM Code Assistant",
+    "description": "AI-powered coding assistant with multi-modal analysis and refactoring suggestions",
+    "version": "0.1.0",
+    "engines": {
+        "vscode": "^1.60.0"
+    },
+    "categories": [
+        "Programming Languages",
+        "Machine Learning",
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -w"
+    },
+    "contributes": {
+        "commands": [
+            {
+                "command": "open-llm.getCodeSuggestion",
+                "title": "Get Code Suggestion",
+                "category": "Open LLM"
+            },
+            {
+                "command": "open-llm.analyzeRefactoring",
+                "title": "Analyze Refactoring Opportunities",
+                "category": "Open LLM"
+            },
+            {
+                "command": "open-llm.analyzeImage",
+                "title": "Analyze Code from Image",
+                "category": "Open LLM"
+            }
+        ],
+        "keybindings": [
+            {
+                "command": "open-llm.getCodeSuggestion",
+                "key": "ctrl+shift+c",
+                "mac": "cmd+shift+c"
+            },
+            {
+                "command": "open-llm.analyzeRefactoring",
+                "key": "ctrl+shift+r",
+                "mac": "cmd+shift+r"
+            }
+        ],
+        "configuration": {
+            "title": "Open LLM Code Assistant",
+            "properties": {
+                "open-llm.apiUrl": {
+                    "type": "string",
+                    "default": "http://localhost:8000",
+                    "description": "URL of the Open LLM API server"
+                },
+                "open-llm.apiKey": {
+                    "type": "string",
+                    "default": "",
+                    "description": "API key for authentication"
+                }
+            }
+        }
+    },
+    "dependencies": {
+        "axios": "^0.24.0",
+        "vscode": "^1.1.37"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.60.0",
+        "@types/node": "^16.0.0",
+        "typescript": "^4.0.0"
+    }
+}
