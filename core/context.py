@@ -1,16 +1,21 @@
+# core/context.py
 from shared.knowledge.graph import KnowledgeGraph
 from shared.schemas import Query, Response
 from typing import Dict, Any, List, Optional
 import numpy as np
 import hashlib
 from datetime import datetime
+import json
+from pathlib import Path
 
 class ContextManager:
     def __init__(self):
         self.graph = KnowledgeGraph()
         self._setup_foundational_knowledge()
         self.interaction_log = []
-        self.routing_history = []  # NEW: Track routing decisions
+        self.routing_history = []
+        self.config = {}
+        self.cache_predictor = None  # Will be initialized by orchestrator
         
     def _setup_foundational_knowledge(self):
         """Initialize with programming fundamentals"""
@@ -32,7 +37,6 @@ class ContextManager:
                 }
             )
     
-    # MODIFIED: Enhanced with routing metadata        
     def process_interaction(
         self, 
         query: Query, 
@@ -53,7 +57,7 @@ class ContextManager:
             f"{datetime.now().isoformat()}:{query.content}".encode()
         ).hexdigest()
         
-        # Enhanced logging (NEW)
+        # Enhanced logging
         log_entry = {
             "id": interaction_id,
             "query": query.content,
@@ -63,7 +67,7 @@ class ContextManager:
         }
         self.interaction_log.append(log_entry)
         
-        # Track routing decisions separately (NEW)
+        # Track routing decisions separately
         if metadata:
             self.routing_history.append({
                 "timestamp": datetime.now().isoformat(),
@@ -75,13 +79,13 @@ class ContextManager:
         self.graph.expand_from_text(
             query.content, 
             source="query",
-            metadata={"sla_tier": metadata.get("sla_tier")} if metadata else None  # NEW
+            metadata={"sla_tier": metadata.get("sla_tier")} if metadata else None
         )
         
         self.graph.expand_from_text(
             response.content,
             source="response",
-            metadata={"provider": metadata.get("provider")} if metadata else None  # NEW
+            metadata={"provider": metadata.get("provider")} if metadata else None
         )
         
         # Create relationship between query and response concepts
@@ -94,10 +98,9 @@ class ContextManager:
                     q_node, 
                     r_node, 
                     "elicits",
-                    metadata=metadata  # NEW: Attach routing info to edges
+                    metadata=metadata
                 )
     
-    # NEW METHOD
     def get_routing_context(self, query_content: str) -> Dict[str, Any]:
         """
         Get context specifically for routing decisions
@@ -112,7 +115,7 @@ class ContextManager:
         # Existing semantic matching
         matches = self.graph.find_semantic_matches(query_content)
         
-        # NEW: Calculate complexity
+        # Calculate complexity
         complexity = min(len(query_content.split()) / 10, 1.0)  # 0-1 scale
         
         return {
@@ -132,7 +135,6 @@ class ContextManager:
             "preferred_llm": self._detect_preferred_provider(query_content)
         }
     
-    # NEW HELPER METHODS
     def _get_interaction_success(self, node_id: str) -> bool:
         """Check if previous interactions with this node were successful"""
         edges = list(self.graph.graph.edges(node_id, data=True))
@@ -150,7 +152,6 @@ class ContextManager:
             return "llama2"
         return None
     
-    # EXISTING METHODS (unchanged)
     def _extract_key_nodes(self, text: str) -> List[str]:
         """Identify most important nodes in text"""
         matches = self.graph.find_semantic_matches(text)
@@ -172,4 +173,21 @@ class ContextManager:
                 {"id": n, **self.graph.graph.nodes[n]}
                 for n in context_nodes
             ]
+        }
+    
+    def get_interaction_history(self, limit: int = 10) -> List[Dict]:
+        """Get recent interaction history"""
+        return self.interaction_log[-limit:]
+    
+    def get_relevant_context(self, query: Dict) -> Dict[str, Any]:
+        """Get context relevant to a specific query"""
+        context = self.get_context(query.get("content", ""))
+        
+        # Add routing-specific context
+        routing_context = self.get_routing_context(query.get("content", ""))
+        
+        return {
+            **context,
+            "routing": routing_context,
+            "recent_history": self.get_interaction_history(5)
         }

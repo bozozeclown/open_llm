@@ -1,3 +1,4 @@
+# core/orchestrator.py
 from typing import Dict, List
 from shared.schemas import Query, Response
 from modules.base_module import BaseModule
@@ -43,7 +44,7 @@ class Orchestrator:
         self._setup_fallback_strategies()
         asyncio.create_task(self.batcher.background_flush())
         asyncio.create_task(self._update_balancer_weights())
-
+    
     def _setup_fallback_strategies(self):
         self.fallback_map = {
             "python": "code_generic",
@@ -51,7 +52,7 @@ class Orchestrator:
             "math": "math_basic",
             "chat": "generic"
         }
-
+    
     async def _update_balancer_weights(self):
         """Periodically update load balancer weights"""
         while True:
@@ -60,7 +61,7 @@ class Orchestrator:
             )
             if len(self.load_balancer.history) >= self.context.config.get("load_balancing.min_requests", 20):
                 self.load_balancer.update_weights()
-
+    
     @self.monitor.track_request('orchestrator')
     async def route_query(self, query: Query) -> Response:
         """Enhanced query processing pipeline"""
@@ -68,7 +69,7 @@ class Orchestrator:
             # 1. Get context and routing info
             pre_context = self.context.get_context(query.content)
             
-            # Dynamic provider selection (NEW)
+            # Dynamic provider selection
             if query.metadata.get("priority", 0) > 0:
                 # High-priority uses SLA routing
                 routing_decision = self.sla_router.select_provider({
@@ -87,20 +88,21 @@ class Orchestrator:
                 routing_decision = {"provider": provider, "tier": "balanced"}
             
             query.provider = provider
-
+            
             # 2. Hybrid reasoning
             reasoning_result = await self.reasoning.process({
                 "query": query.content,
                 "context": pre_context,
                 "llm_preference": provider
             })
-
+            
             # 3. Module processing with quality gates
             module = self._select_module(
                 query,
                 pre_context,
                 reasoning_source=reasoning_result.get("source")
             )
+            
             enriched_query = query.with_additional_context(reasoning_result)
             
             # Process with batching if enabled
@@ -111,14 +113,14 @@ class Orchestrator:
                 )
                 if len(batch) > 1:
                     return await self._batch_process(batch)
-
+            
             raw_response = await module.process(enriched_query)
-
+            
             # 4. Validate and enhance response
             validation = self.validator.validate(raw_response)
             if not validation["passed"]:
                 return await self._handle_quality_failure(enriched_query, validation)
-
+            
             final_response = self._augment_response(
                 validation["original_response"],
                 pre_context,
@@ -128,7 +130,7 @@ class Orchestrator:
                     "reasoning_path": reasoning_result["source"]
                 }
             )
-
+            
             # 5. Learn and cache
             self.context.process_interaction(
                 query,
@@ -139,14 +141,15 @@ class Orchestrator:
                     "provider": provider
                 }
             )
+            
             asyncio.create_task(self.cache_warmer.warm_cache(query.content))
-
+            
             return final_response
-
+            
         except Exception as e:
             self.logger.error(f"Routing failed: {str(e)}")
             return await self._handle_failure(query, e)
-
+    
     async def _batch_process(self, batch: List[Dict]) -> Response:
         """Process batched queries through LLM"""
         try:
@@ -173,12 +176,12 @@ class Orchestrator:
         except Exception as e:
             self.logger.warning(f"Batch processing failed: {str(e)}")
             return await self.route_query(Query(**batch[0]))
-
+    
     async def _handle_quality_failure(self, query: Query, validation: Dict) -> Response:
         """Process failed quality checks"""
         self.logger.warning(f"Quality check failed: {validation['checks']}")
         return await self._retry_with_stricter_llm(query)
-
+    
     def _select_module(self, query: Query, context: dict, reasoning_source: str = None) -> BaseModule:
         """Enhanced module selection"""
         if reasoning_source == "graph":
@@ -235,7 +238,7 @@ class Orchestrator:
             return response
             
         raise RuntimeError("All fallback strategies failed")
-
+    
     async def _retry_with_stricter_llm(self, query: Query) -> Response:
         """Fallback strategy for quality failures"""
         query.metadata["require_quality"] = True

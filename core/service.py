@@ -1,3 +1,4 @@
+# core/service.py
 from fastapi import FastAPI, APIRouter, HTTPException, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -8,32 +9,37 @@ from typing import Dict, Any
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field
-from shared.schemas import FeedbackRating, FeedbackCorrection  # Your new schemas
 
-# Core imports
-from core.integrations.manager import IntegrationManager
+# Fixed imports
+from shared.schemas import FeedbackRating, FeedbackCorrection, Query, Response
+from core.integrations.manager import PluginManager  # Fixed: IntegrationManager -> PluginManager
 from core.reasoning.engine import HybridEngine
 from core.orchestrator import Orchestrator
 from core.self_healing import SelfHealingController
 from core.context import ContextManager
 from core.visualization import KnowledgeVisualizer
-from core.versioning import KnowledgeVersioner
-
-# Module system
+from core.versioning import KnowledgeVersioner  # Now this will work
 from modules.registry import ModuleRegistry
-from shared.schemas import Query
+from core.performance.cost import CostMonitor
+from core.performance.tracker import PerformanceTracker
+from core.orchestration.load_balancer import LoadBalancer
+from core.orchestration.sla_router import SLARouter
 
 class AIService:
     def __init__(self, config: Dict[str, Any]):
-        self.load_balancer = LoadBalancer(self.monitor)
-        asyncio.create_task(self._update_weights_loop())
         self.config = config
-        self.integration_manager = IntegrationManager(config.get("plugins", {}))
+        self.plugin_manager = PluginManager(config.get("plugins", {}))  # Fixed: IntegrationManager -> PluginManager
         self.reasoning = HybridEngine(self.context)
+        
+        # Initialize monitoring components
+        self.cost_monitor = CostMonitor(config.get("cost", {}))
+        self.performance_tracker = PerformanceTracker()
+        self.load_balancer = LoadBalancer(self.performance_tracker)
+        self.sla_router = SLARouter(self.cost_monitor, self.performance_tracker)
         
         self.app = FastAPI(
             title="AI Code Assistant",
-            version="0.6.0",  # Bumped version
+            version="0.6.0",
             docs_url="/api-docs"
         )
         
@@ -41,29 +47,45 @@ class AIService:
         self.registry = ModuleRegistry()
         self.context = ContextManager()
         self.healing = SelfHealingController(self.registry)
-        self.orchestrator = Orchestrator(
-            registry=self.registry,
-            healing=self.healing,
-            context=self.context,
-            reasoning=self.reasoning  # New dependency
-        )
         self.visualizer = KnowledgeVisualizer(self.context.graph)
-        self.versioner = KnowledgeVersioner(self.context.graph)
+        self.versioner = KnowledgeVersioner(self.context.graph)  # Now this will work
+        
+        # Initialize orchestrator with all dependencies
+        self.orchestrator = Orchestrator(
+            validator=None,  # Will be set after initialization
+            sla_router=self.sla_router,
+            load_balancer=self.load_balancer,
+            registry=self.registry,
+            healing_controller=self.healing,
+            context_manager=self.context,
+            reasoning_engine=self.reasoning,
+            monitoring=self.performance_tracker
+        )
+        
+        # Initialize validator after orchestrator
+        from core.validation.quality_gates import QualityValidator
+        self.validator = QualityValidator(config.get("quality_standards", {}))
+        self.orchestrator.validator = self.validator
         
         self._setup()
         
-        from core.feedback.processor import FeedbackProcessor  # Lazy import
+        from core.feedback.processor import FeedbackProcessor
         self.feedback_processor = FeedbackProcessor(self.context)
         
+        # Start background tasks
+        asyncio.create_task(self._update_weights_loop())
+    
     async def _update_weights_loop(self):
+        """Periodically update load balancer weights"""
         while True:
-            await asyncio.sleep(self.config["load_balancing"]["update_interval"])
-            self.load_balancer.update_weights()
+            await asyncio.sleep(self.config.get("load_balancing", {}).get("update_interval", 10))
+            if len(self.load_balancer.history) >= self.config.get("load_balancing", {}).get("min_requests", 20):
+                self.load_balancer.update_weights()
     
     async def process_query(self, query: Dict) -> Dict:
         """Enhanced processing pipeline"""
         return await self.reasoning.process(query)
-
+    
     def _setup(self):
         """Initialize all components"""
         # Setup filesystem
@@ -82,7 +104,7 @@ class AIService:
         # Setup routes
         self._setup_routes()
         self._mount_static()
-
+    
     def _setup_routes(self):
         @self.app.post("/process")
         async def process(query: Query):
@@ -122,21 +144,21 @@ class AIService:
                 "status": "healthy",
                 "services": {
                     name: plugin.is_ready()
-                    for name, plugin in self.integration_manager.plugins.items()
+                    for name, plugin in self.plugin_manager.plugins.items()  # Fixed: integration_manager -> plugin_manager
                 }
             }
-
+        
         self.app.include_router(knowledge_router)
         
         @self.app.get("/cost-monitoring")
         async def get_cost_metrics():
             return {
-                "current": service.cost_monitor.current_spend,
-                "forecast": service.cost_monitor.get_spend_forecast(),
-                "budget": service.cost_monitor.config["monthly_budget"]
+                "current": self.cost_monitor.current_spend,
+                "forecast": self.cost_monitor.get_spend_forecast(),
+                "budget": self.cost_monitor.config.get("monthly_budget", 100.0)
             }
             
-        # ===== ADD FEEDBACK ROUTES HERE =====
+        # Feedback routes
         @self.app.post("/feedback/rate", tags=["Feedback"])
         async def record_rating(feedback: FeedbackRating):
             """Record explicit user ratings (1-5 stars)"""
@@ -149,7 +171,7 @@ class AIService:
                 'timestamp': datetime.utcnow().isoformat()
             })
             return {"status": "rating_recorded"}
-
+        
         @self.app.post("/feedback/correct", tags=["Feedback"])
         async def record_correction(feedback: FeedbackCorrection):
             """Handle factual corrections from users"""
@@ -161,16 +183,62 @@ class AIService:
                 'timestamp': datetime.utcnow().isoformat()
             })
             return {"status": "correction_applied"}
-
+        
+        # Versioning endpoints
+        @self.app.get("/versions", tags=["Versioning"])
+        async def list_versions():
+            """List all knowledge graph versions"""
+            return {
+                "versions": [
+                    {
+                        "version_id": v.version_id,
+                        "timestamp": v.timestamp.isoformat(),
+                        "description": v.description,
+                        "author": v.author,
+                        "tags": v.tags
+                    }
+                    for v in self.versioner.list_versions()
+                ]
+            }
+        
+        @self.app.post("/versions", tags=["Versioning"])
+        async def create_version(description: str, author: str = "system", tags: list = None):
+            """Create a new version of the knowledge graph"""
+            version_id = self.versioner.create_version(description, author, tags)
+            return {"version_id": version_id, "status": "created"}
+        
+        @self.app.get("/versions/{version_id}", tags=["Versioning"])
+        async def get_version(version_id: str):
+            """Get a specific version"""
+            version = self.versioner.get_version(version_id)
+            if not version:
+                raise HTTPException(status_code=404, detail="Version not found")
+            return {
+                "version_id": version.version_id,
+                "timestamp": version.timestamp.isoformat(),
+                "description": version.description,
+                "author": version.author,
+                "tags": version.tags,
+                "snapshot": version.snapshot
+            }
+        
+        @self.app.post("/versions/{version_id}/restore", tags=["Versioning"])
+        async def restore_version(version_id: str):
+            """Restore knowledge graph to a specific version"""
+            success = self.versioner.restore_version(version_id)
+            if not success:
+                raise HTTPException(status_code=404, detail="Version not found")
+            return {"status": "restored", "version_id": version_id}
+    
     def _mount_static(self):
         self.app.mount("/static", StaticFiles(directory="static"), name="static")
         
         @self.app.get("/")
         async def serve_ui():
             return FileResponse("templates/index.html")
-
+    
     async def start_service(self, host: str = "0.0.0.0", port: int = 8000):
-        """Corrected instance method"""
+        """Start the service"""
         config = uvicorn.Config(
             self.app,
             host=host,

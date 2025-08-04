@@ -19,6 +19,7 @@ An AI-powered coding assistant with hybrid reasoning, self-learning capabilities
 - **VS Code Extension** - Seamless IDE integration
 - **Comprehensive Analytics Dashboard** - Real-time metrics and insights
 - **ML Model Management** - Automated model updates and versioning
+- **Knowledge Graph Versioning** - Track and restore knowledge graph states
 
 ### Security & Reliability
 - **Authentication & Authorization** - API key-based access control
@@ -109,6 +110,10 @@ analysis = client.analyze_image("path/to/code/image.png")
 
 # Real-time collaboration
 session = client.create_session("My Coding Session", "print('Hello World')", "python")
+
+# Knowledge graph versioning
+version_id = client.create_version("Initial knowledge state")
+restored = client.restore_version(version_id)
 ```
 
 ### VS Code Extension
@@ -170,6 +175,26 @@ model_info = manager.get_model_info(ModelType.MULTIMODAL)
 print(f"Model status: {model_info.status}")
 ```
 
+### Knowledge Graph Versioning
+```python
+from core.versioning import KnowledgeVersioner
+
+versioner = KnowledgeVersioner(knowledge_graph)
+
+# Create a version
+version_id = versioner.create_version(
+    description="Added Python optimization patterns",
+    author="developer",
+    tags=["python", "optimization"]
+)
+
+# List all versions
+versions = versioner.list_versions()
+
+# Restore to a previous version
+success = versioner.restore_version(version_id)
+```
+
 ## 🧪 Testing
 
 Run the comprehensive test suite:
@@ -184,6 +209,11 @@ pytest tests/performance/
 
 # Run with coverage
 pytest --cov=core tests/
+
+# Verify consistency
+python -c "from core.orchestrator import Orchestrator; print('✅ Orchestrator imports correctly')"
+python -c "from core.service import AIService; print('✅ Service imports correctly')"
+python -c "from modules.registry import ModuleRegistry; print('✅ Module registry imports correctly')"
 ```
 
 ## 📈 Performance
@@ -207,38 +237,81 @@ open_llm/
 │   └── sla_tiers.yaml        # Service level agreements
 ├── core/                      # Core application logic
 │   ├── analysis/              # Code analysis components
+│   │   └── advanced_analyzer.py
 │   ├── analytics/             # Analytics dashboard
+│   │   └── dashboard.py
 │   ├── collaboration/        # Real-time collaboration
+│   │   └── session_manager.py
 │   ├── completion/            # Code completion
+│   │   └── intelligent_completer.py
+│   ├── context.py             # Context and knowledge management
 │   ├── database/             # Database management
+│   │   └── optimized_manager.py
 │   ├── debugging/            # Debugging tools
+│   │   └── debugger.py
 │   ├── errors/               # Error handling
+│   │   ├── handlers.py
+│   │   └── resilience.py
 │   ├── feedback/             # User feedback processing
+│   │   └── processor.py
 │   ├── health.py             # Health monitoring
 │   ├── integrations/         # LLM provider integrations
+│   │   ├── __init__.py
+│   │   ├── grok.py
+│   │   ├── huggingface.py
+│   │   ├── lmstudio.py
+│   │   ├── manager.py
+│   │   ├── ollama.py
+│   │   ├── textgen.py
+│   │   └── vllm.py
 │   ├── interface.py          # API interface
 │   ├── ml/                   # Machine learning
+│   │   └── model_manager.py
 │   ├── multimodal/           # Multi-modal analysis
+│   │   └── image_analyzer.py
 │   ├── monitoring/           # Performance monitoring
+│   │   └── service.py
 │   ├── orchestration/        # Request orchestration
+│   │   ├── budget_router.py
+│   │   ├── load_balancer.py
+│   │   └── sla_router.py
 │   ├── orchestrator.py       # Main orchestrator
 │   ├── performance/          # Performance optimization
+│   │   ├── cost.py
+│   │   ├── hashing.py
+│   │   ├── optimization.py
+│   │   └── tracker.py
 │   ├── personalization/      # User personalization
+│   │   └── user_profile.py
 │   ├── plugin.py             # Plugin system
 │   ├── prediction/           # Predictive caching
+│   │   ├── cache.py
+│   │   └── warmer.py
 │   ├── processing/           # Request processing
+│   │   └── batcher.py
 │   ├── reasoning/            # Reasoning engine
+│   │   ├── engine.py
+│   │   └── rules.py
 │   ├── refactoring/          # Code refactoring
+│   │   └── refactor_engine.py
 │   ├── security/             # Security features
+│   │   ├── auth.py
+│   │   └── rate_limiter.py
 │   ├── self_healing.py       # Self-healing system
 │   ├── self_learning/        # Self-learning capabilities
+│   │   ├── engine.py
+│   │   └── rule_applier.py
 │   ├── service.py            # Main service entry point
 │   ├── signature_help.py     # Code signature help
 │   ├── state_manager.py      # Session state management
 │   ├── testing/              # Test generation
+│   │   └── test_generator.py
 │   ├── ux/                   # User experience
+│   │   └── enhanced_error_handler.py
 │   ├── validation/           # Response validation
+│   │   └── quality_gates.py
 │   └── versioning/           # Knowledge versioning
+│       └── __init__.py
 ├── deploy/                   # Deployment configuration
 │   └── docker/
 │       └── docker-compose.yml
@@ -259,16 +332,31 @@ open_llm/
 │   └── prometheus.yml
 ├── shared/                   # Shared components
 │   ├── config/               # Configuration management
+│   │   ├── init.py
+│   │   └── loader.py
 │   ├── knowledge/            # Knowledge graph
+│   │   └── graph.py
 │   └── schemas.py            # Data schemas
 ├── static/                   # Static web assets
 │   ├── css/                  # Stylesheets
+│   │   ├── debugger.css
+│   │   ├── graph.css
+│   │   └── signature.css
 │   ├── js/                   # JavaScript
+│   │   ├── completion.js
+│   │   ├── debugger.js
+│   │   ├── graph-explorer.js
+│   │   └── signature.js
 │   └── templates/            # HTML templates
+│       └── index.html
 ├── tests/                    # Test suite
 │   ├── conftest.py
 │   ├── integration/          # Integration tests
+│   │   ├── test_multimodal.py
+│   │   ├── test_refactoring.py
+│   │   └── test_collaboration.py
 │   ├── performance/          # Performance tests
+│   │   └── test_performance.py
 │   └── test_orchestrator.py
 ├── vscode-extension/          # VS Code extension
 │   └── package.json
@@ -285,11 +373,13 @@ open_llm/
 #### Core System (`core/`)
 - **Orchestrator**: Central query processing and routing
 - **Integrations**: Plugin system for LLM providers (Ollama, vLLM, HuggingFace, etc.)
+- **Context**: Knowledge graph management and interaction tracking
 - **Analytics**: Real-time monitoring dashboard
 - **Collaboration**: Live coding session management
 - **Multimodal**: Image-based code analysis
 - **Refactoring**: Intelligent code improvement suggestions
 - **Self-Learning**: System that improves from user interactions
+- **Versioning**: Knowledge graph state management and restoration
 - **Security**: Authentication, authorization, and rate limiting
 
 #### Modules (`modules/`)
@@ -319,6 +409,11 @@ pre-commit install
 
 # Start development server with hot reload
 uvicorn core.service:app --reload
+
+# Verify project consistency
+python -c "from core.orchestrator import Orchestrator; print('✅ Orchestrator OK')"
+python -c "from core.service import AIService; print('✅ Service OK')"
+python -c "from modules.registry import ModuleRegistry; print('✅ Registry OK')"
 ```
 
 ## 📋 TO DO
@@ -343,6 +438,9 @@ uvicorn core.service:app --reload
 - [x] Add performance testing and optimization
 - [x] Implement advanced rate limiting
 - [x] Add database optimization
+- [x] Implement knowledge graph versioning system
+- [x] Fix all import and naming inconsistencies
+- [x] Ensure project-wide consistency
 
 ### 🚧 In Progress
 - [ ] Add mobile app support (React Native)
