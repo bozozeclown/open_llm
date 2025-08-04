@@ -2,7 +2,6 @@ You're absolutely right! Let me create a much more detailed README.md that accur
 
 # Open LLM Code Assistant
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/bozozeclown/open_llm/ci.yml?branch=main)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
