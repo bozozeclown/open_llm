@@ -71,7 +71,7 @@ export HF_API_KEY="your_huggingface_api_key"
 export TEXTGEN_API_KEY="your_textgen_api_key"
 ```
 
-### Docker Deployment
+### Docker Deployment (Optional)
 ```bash
 # Build and run with Docker Compose
 docker-compose up -d
