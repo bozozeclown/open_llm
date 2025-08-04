@@ -444,7 +444,7 @@ The system is optimized for:
 - **Documentation**: [Wiki](https://github.com/bozozeclown/open_llm/wiki)
 - **Issues**: [GitHub Issues](https://github.com/bozozeclown/open_llm/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/bozozeclown/open_llm/discussions)
-- **Discord**: [Community Server](https://discord.gg/5VEMNdsyYs)
+- **Discord**: [Community Server](https://discord.gg/fTtyhu38)
 
 ## 📄 License
 
