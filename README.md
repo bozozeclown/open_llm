@@ -1,4 +1,4 @@
-# AI Code Assistant - Comprehensive Documentation
+# Open LLM - Comprehensive Documentation
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
@@ -20,7 +20,7 @@
 
 ## Project Overview
 
-AI Code Assistant is a comprehensive, enterprise-grade AI-powered coding assistant that provides intelligent code analysis, completion, debugging, and collaboration capabilities. The system integrates with multiple LLM providers to deliver context-aware suggestions and insights across 25+ programming languages.
+Open LLM is a comprehensive, enterprise-grade AI-powered coding assistant that provides intelligent code analysis, completion, debugging, and collaboration capabilities. The system integrates with multiple LLM providers to deliver context-aware suggestions and insights across 25+ programming languages.
 
 ### Vision
 Our vision is to democratize advanced AI coding assistance, making it accessible to developers of all skill levels while providing enterprise-grade security, scalability, and customization options.
@@ -1201,12 +1201,12 @@ The VS Code extension provides integrated AI assistance:
 - **Knowledge Graph**: Access project knowledge
 
 #### 4. Commands
-- `AI Code Assistant: Analyze Current File`
-- `AI Code Assistant: Analyze Selection`
-- `AI Code Assistant: Generate Completion`
-- `AI Code Assistant: Debug Issue`
-- `AI Code Assistant: Start Collaboration Session`
-- `AI Code Assistant: Join Collaboration Session`
+- `Open LLM: Analyze Current File`
+- `Open LLM: Analyze Selection`
+- `Open LLM: Generate Completion`
+- `Open LLM: Debug Issue`
+- `Open LLM: Start Collaboration Session`
+- `Open LLM: Join Collaboration Session`
 
 ### Mobile App
 
