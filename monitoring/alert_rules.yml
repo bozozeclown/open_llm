@@ -1,0 +1,30 @@
+# monitoring/alert_rules.yml
+groups:
+  - name: open_llm_alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(llm_requests_total{status="failed"}[5m]) / rate(llm_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | printf "%.2f" }} for the last 5 minutes"
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, llm_response_latency_seconds_bucket) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response latency"
+          description: "95th percentile latency is {{ $value }} seconds"
+
+      - alert: LowCacheHitRate
+        expr: cache_hit_ratio < 0.5
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit ratio is {{ $value | printf "%.2f" }}"
