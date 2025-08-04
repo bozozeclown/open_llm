@@ -1,812 +1,676 @@
-# Open LLM Code Assistant
+# AI Code Assistant - Comprehensive Documentation
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+## Table of Contents
+1. [Project Overview](#project-overview)
+2. [Core Architecture](#core-architecture)
+3. [Features](#features)
+4. [Installation & Setup](#installation--setup)
+5. [Configuration](#configuration)
+6. [Usage Guide](#usage-guide)
+7. [Project Structure](#project-structure)
+8. [Development Workflow](#development-workflow)
+9. [API Documentation](#api-documentation)
+10. [Testing](#testing)
+11. [Deployment](#deployment)
+12. [Troubleshooting](#troubleshooting)
+13. [Contributing](#contributing)
+14. [License](#license)
+15. [Acknowledgments](#acknowledgments)
+16. [Contact](#contact)
 
-An enterprise-grade AI-powered coding assistant with hybrid reasoning, self-learning capabilities, multi-LLM orchestration, and comprehensive development tools.
+## Project Overview
 
-## 🌟 Comprehensive Feature Overview
+AI Code Assistant is a comprehensive, enterprise-grade AI-powered coding assistant that provides intelligent code analysis, completion, debugging, and collaboration capabilities. The system integrates with multiple LLM providers to deliver context-aware suggestions and insights across 25+ programming languages.
 
-### Core Architecture & Intelligence
+### Vision
+Our vision is to democratize advanced AI coding assistance, making it accessible to developers of all skill levels while providing enterprise-grade security, scalability, and customization options.
 
-#### 🧠 Hybrid Reasoning Engine
-- **Multi-Modal Intelligence**: Combines rule-based patterns, knowledge graphs, and multiple LLM providers
-- **Context-Aware Processing**: Understands code context, project structure, and user intent
-- **Adaptive Learning**: Continuously improves from user interactions and feedback
-- **Quality Validation**: Automated response validation with configurable quality gates
+### Key Capabilities
+1. **Multi-LLM Integration**: Seamlessly switch between Ollama, vLLM, HuggingFace, TextGen, Grok, and LM Studio
+2. **Intelligent Code Analysis**: Advanced static analysis for code quality, security, and refactoring opportunities
+3. **Context-Aware Completion**: Smart code suggestions based on project structure and coding patterns
+4. **Real-time Collaboration**: Create and share coding sessions with team members
+5. **Enterprise Features**: SAML authentication, audit logging, team management, and advanced security
+6. **Performance Optimization**: Intelligent load balancing, caching, and resource management
+7. **Multi-Platform Support**: CLI, web interface, VS Code extension, and mobile app
 
-#### 🔌 Multi-LLM Integration
-- **Provider Support**: Ollama, vLLM, HuggingFace, Grok, TextGen, LM Studio
-- **Intelligent Routing**: Automatically selects optimal LLM based on query type, complexity, and cost
-- **Load Balancing**: Distributes requests across available providers for optimal performance
-- **Fallback Mechanisms**: Graceful degradation when providers are unavailable
+## Core Architecture
 
-#### 📊 Knowledge Graph System
-- **Semantic Understanding**: Extracts and relationships between code concepts, patterns, and solutions
-- **Version Control**: Complete knowledge graph versioning with rollback capabilities
-- **Visualization**: Interactive graph explorer for understanding code relationships
-- **Pattern Recognition**: Identifies and learns from common code patterns and solutions
+The system follows a modular, microservices-inspired architecture with clear separation of concerns:
 
-### Development & Analysis Tools
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           Presentation Layer                                   │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│  CLI Interface  │  Web UI  │  VS Code Extension  │  Mobile App  │  API Gateway  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                            Application Services                                │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Analysis Engine │ Completion Engine │ Debugging │ Collaboration │ Security │ Monitoring │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          Integration Layer                                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ Ollama │ vLLM │ HuggingFace │ TextGen │ Grok │ LM Studio │ Custom Providers  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                         │
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         Data & Storage Layer                                    │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│ PostgreSQL │ Redis │ Knowledge Graph │ File Storage │ Cache │ Message Queue │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
 
-#### 🔍 Advanced Code Analysis
-- **Static Analysis**: Comprehensive code quality assessment with complexity metrics
-- **Refactoring Suggestions**: AI-powered code improvement recommendations
-- **Pattern Detection**: Identifies anti-patterns, code smells, and optimization opportunities
-- **Multi-Language Support**: Python, JavaScript, C#, C/C++, HTML, CSS, and more
+### Core Components
 
-#### 🤖 Multi-Modal Capabilities
-- **Image-to-Code**: Extract and analyze code from screenshots, images, and handwritten notes
-- **OCR Integration**: Tesseract-powered text extraction from images
-- **Language Detection**: Automatically identifies programming languages in visual content
-- **Structure Analysis**: Converts unstructured code into properly formatted, executable code
+1. **Orchestrator Service** (`core/orchestrator.py`): Manages request routing, load balancing, and failover between LLM providers
+   - Implements intelligent routing based on SLA requirements, budget constraints, and provider capabilities
+   - Handles provider health checks and automatic failover
+   - Manages request batching and parallel processing
 
-#### 🔄 Real-time Collaboration
-- **Live Sessions**: Real-time collaborative coding with multiple users
-- **Permission Management**: Role-based access control (Owner, Editor, Viewer)
-- **Change Tracking**: Real-time synchronization of code changes
-- **Session Management**: Persistent sessions with public/private options
+2. **Analysis Engine** (`core/analysis/`): Performs static code analysis, security scanning, and quality assessment
+   - `advanced_analyzer.py`: Core analysis logic with support for 25+ programming languages
+   - Integrates with language-specific parsers and AST analyzers
+   - Provides metrics for complexity, maintainability, and security
+
+3. **Completion Engine** (`core/completion/`): Generates context-aware code suggestions and completions
+   - `intelligent_completer.py`: Uses project context and coding patterns
+   - Supports multi-file context and cross-referencing
+   - Implements intelligent ranking of suggestions
+
+4. **Collaboration Service** (`core/collaboration/`): Manages real-time coding sessions and knowledge sharing
+   - `session_manager.py`: Handles session creation, management, and sharing
+   - Implements real-time synchronization using WebSockets
+   - Manages access control and session permissions
+
+5. **Security Layer** (`core/security/`): Handles authentication, authorization, rate limiting, and audit logging
+   - `auth.py`: Implements JWT-based authentication and SAML integration
+   - `rate_limiter.py`: Configurable rate limiting with sliding window algorithm
+   - Enterprise-grade encryption for sensitive data
+
+6. **Monitoring Service** (`core/monitoring/`): Tracks system health, performance metrics, and usage analytics
+   - Integrates with Prometheus and Grafana for visualization
+   - Provides real-time alerts and notifications
+   - Tracks provider performance and reliability metrics
+
+## Features
+
+### Core Functionality
+
+#### 1. Multi-LLM Support
+The system seamlessly integrates with various LLM providers, allowing users to:
+- Switch between providers based on performance, cost, or capability requirements
+- Configure fallback mechanisms for high availability
+- Implement provider-specific optimizations and customizations
+
+**Supported Providers:**
+- **Ollama** (`core/integrations/ollama.py`): Local model deployment with support for custom models
+- **vLLM** (`core/integrations/vllm.py`): High-performance inference with PagedAttention
+- **HuggingFace** (`core/integrations/huggingface.py`): Access to thousands of pre-trained models
+- **TextGen** (`core/integrations/textgen.py`): WebUI-based text generation
+- **Grok** (`core/integrations/grok.py`): Advanced reasoning capabilities
+- **LM Studio** (`core/integrations/lmstudio.py`): Local model management interface
+
+**Provider Management:**
+- Automatic health checks and failover
+- Performance-based load balancing
+- Cost tracking and budget management
+- Provider-specific configuration and optimization
+
+#### 2. Intelligent Code Analysis
+The system provides comprehensive code analysis capabilities:
+
+**Analysis Types:**
+- **Refactoring Analysis** (`core/refactoring/refactor_engine.py`): Identifies opportunities for code improvement
+- **Quality Analysis** (`core/validation/quality_gates.py`): Assesses code against quality standards
+- **Security Analysis** (`core/security/`): Scans for vulnerabilities and security issues
+
+**Analysis Features:**
+- Multi-language support with language-specific rules
+- Integration with industry-standard linters and analyzers
+- Customizable analysis rules and thresholds
+- Detailed reporting with actionable recommendations
+
+#### 3. Context-Aware Code Completion
+The system provides intelligent code completions based on:
+- Current file context and syntax
+- Project structure and dependencies
+- User coding patterns and preferences
+- Cross-file references and relationships
+
+**Completion Features:**
+- Real-time suggestions as you type
+- Multi-line completions
+- Function and class completions
+- Import and dependency suggestions
+- Context-aware ranking of suggestions
+
+#### 4. Advanced Debugging
+The system helps identify and resolve issues with:
+- Error analysis and explanation
+- Performance bottleneck identification
+- Code smell detection
+- Memory leak detection
+- Concurrency issue detection
+
+**Debugging Features:**
+- Interactive debugging sessions
+- Stack trace analysis
+- Variable inspection and evaluation
+- Performance profiling
+- Memory usage analysis
+
+#### 5. Real-time Collaboration
+The system enables real-time collaboration with:
+- Shared coding sessions
+- Live code synchronization
+- Multi-user editing
+- Chat and commenting
+- Session recording and playback
+
+**Collaboration Features:**
+- Public and private sessions
+- Access control and permissions
+- Real-time conflict resolution
+- Session history and versioning
+- Integration with version control systems
 
 ### Enterprise Features
 
-#### 🔐 Security & Compliance
-- **SSO Integration**: OAuth2 (Google, Microsoft, GitHub) and SAML 2.0 support
-- **Audit Logging**: Comprehensive activity tracking with compliance reporting
-- **Team Management**: Role-based permissions and resource sharing
-- **Data Protection**: Enterprise-grade security with encryption and access controls
+#### 1. SAML Authentication
+Enterprise-grade single sign-on with:
+- Integration with identity providers (IdP)
+- Multi-factor authentication support
+- Role-based access control
+- Session management and revocation
 
-#### 📈 Monitoring & Analytics
-- **Performance Dashboard**: Real-time metrics and system health monitoring
-- **Usage Analytics**: User behavior analysis and usage patterns
-- **Cost Tracking**: LLM provider cost monitoring and budget management
-- **Alert System**: Configurable alerts for system issues and performance degradation
+#### 2. Audit Logging
+Comprehensive audit trail with:
+- User activity tracking
+- System event logging
+- API request logging
+- Security event monitoring
+- Compliance reporting
 
-#### 🚀 Deployment & Scaling
-- **Container Support**: Docker and Docker Compose configurations
-- **Enterprise Deployment**: Kubernetes-ready with high-availability configurations
-- **Load Balancing**: Horizontal scaling with intelligent request distribution
-- **Health Monitoring**: Comprehensive health checks and self-healing capabilities
+#### 3. Team Management
+Organize users into teams with:
+- Hierarchical team structure
+- Role-based permissions
+- Resource allocation
+- Team-specific configurations
+- Usage tracking and reporting
 
-## 🏗️ Complete Project Architecture
+#### 4. Advanced Security
+Enterprise security features include:
+- End-to-end encryption
+- API key management
+- Rate limiting and throttling
+- IP whitelisting/blacklisting
+- Data loss prevention
+- Vulnerability scanning
 
-```
-open_llm/
-├── .github/workflows/           # CI/CD pipelines
-│   └── ci.yml
-├── cli/                         # Command-line interface
-│   ├── commands/                # CLI command implementations
-│   │   ├── analyze.py           # Code analysis commands
-│   │   ├── query.py             # Query processing commands
-│   │   ├── session.py          # Collaboration session commands
-│   │   └── version.py          # Knowledge versioning commands
-│   ├── config.py                # CLI configuration management
-│   ├── main.py                  # CLI entry point
-│   └── utils/                   # CLI utility functions
-├── configs/                     # Configuration files
-│   ├── base.yaml               # Base project configuration
-│   ├── integration.yaml        # LLM provider integrations
-│   ├── model.yaml              # Model-specific settings
-│   ├── predictions.yaml        # Prediction system settings
-│   ├── quality_standards.yaml  # Code quality standards
-│   └── sla_tiers.yaml         # Service level agreements
-├── core/                        # Core application logic
-│   ├── analysis/               # Code analysis components
-│   │   └── advanced_analyser.py # Advanced code analysis
-│   ├── analytics/              # Analytics dashboard
-│   │   └── dashboard.py         # Web analytics dashboard
-│   ├── collaboration/          # Real-time collaboration
-│   │   └── session_manager.py  # Session management
-│   ├── completion/             # Code completion
-│   │   └── intelligent_completer.py # AI-powered completion
-│   ├── database/               # Database management
-│   │   └── optimized_manager.py # Optimized database operations
-│   ├── enterprise/             # Enterprise features
-│   │   ├── audit/              # Audit logging
-│   │   ├── auth/               # Authentication & SSO
-│   │   └── teams/              # Team management
-│   ├── errors/                # Error handling
-│   │   └── handlers.py         # Error handlers and resilience
-│   ├── feedback/              # User feedback processing
-│   │   └── processor.py        # Feedback analysis and learning
-│   ├── integrations/          # LLM provider integrations
-│   │   ├── grok.py            # Grok AI integration
-│   │   ├── huggingface.py     # HuggingFace integration
-│   │   ├── lmstudio.py        # LM Studio integration
-│   │   ├── manager.py         # Integration manager
-│   │   ├── ollama.py          # Ollama integration
-│   │   ├── textgen.py         # TextGen integration
-│   │   └── vllm.py            # vLLM integration
-│   ├── ml/                    # Machine learning components
-│   │   └── model_manager.py   # ML model management
-│   ├── multimodal/            # Multi-modal analysis
-│   │   └── image_analyser.py  # Image-based code analysis
-│   ├── offline/               # Offline capabilities
-│   │   └── init.py            # Offline mode management
-│   ├── orchestration/         # Request orchestration
-│   │   ├── budget_router.py   # Budget-aware routing
-│   │   ├── load_balancer.py   # Load balancing
-│   │   └── sla_router.py      # SLA-based routing
-│   ├── performance/           # Performance optimization
-│   │   ├── cost.py            # Cost monitoring
-│   │   ├── hashing.py         # Query hashing
-│   │   ├── optimisation.py    # Performance optimizations
-│   │   └── tracker.py         # Performance tracking
-│   ├── personalization/       # User personalization
-│   │   └── user_profile.py    # User profile management
-│   ├── prediction/            # Predictive capabilities
-│   │   ├── cache.py           # Cache prediction
-│   │   └── warmer.py          # Cache warming
-│   ├── processing/            # Request processing
-│   │   └── batcher.py         # Request batching
-│   ├── reasoning/             # Reasoning engine
-│   │   ├── engine.py          # Hybrid reasoning engine
-│   │   └── rules.py           # Rule-based reasoning
-│   ├── refactoring/          # Code refactoring
-│   │   └── refactor_engine.py # Refactoring suggestions
-│   ├── security/             # Security features
-│   │   ├── auth.py            # Authentication
-│   │   └── rate_limiter.py    # Rate limiting
-│   ├── self_learning/         # Self-learning capabilities
-│   │   ├── engine.py          # Learning engine
-│   │   └── rule_applier.py    # Rule application
-│   ├── testing/               # Test generation
-│   │   └── test_generator.py  # Automated test generation
-│   ├── ux/                    # User experience
-│   │   └── enhanced_error_handler.py # Enhanced error handling
-│   ├── validation/           # Response validation
-│   │   └── quality_gates.py  # Quality validation
-│   ├── versioning/           # Knowledge versioning
-│   │   └── init.py            # Version management
-│   ├── voice/                # Voice interaction
-│   │   └── init.py            # Voice command processing
-│   ├── analysis.py           # Basic code analysis
-│   ├── completion.py         # Code completion
-│   ├── context.py            # Context management
-│   ├── debugger.py           # Debugging tools
-│   ├── health.py             # Health monitoring
-│   ├── interface.py          # API interface
-│   ├── orchestrator.py       # Main orchestrator
-│   ├── plugin.py             # Plugin system
-│   ├── self_healing.py       # Self-healing system
-│   ├── service.py            # Main service entry point
-│   ├── signature_help.py     # Code signature help
-│   └── state_manager.py      # Session state management
-├── data/                       # Data storage
-│   ├── processed/            # Processed data
-│   └── raw/                  # Raw data
-├── deploy/                     # Deployment configurations
-│   ├── docker/               # Docker deployment
-│   │   ├── docker-compose.yml
-│   │   └── Dockerfile
-│   └── enterprise/          # Enterprise deployment
-│       ├── docker-compose.enterprise.yml
-│       └── Dockerfile.enterprise
-├── docs/                       # Documentation
-│   ├── DEVELOPER_GUIDE.md    # Developer guide
-│   ├── INSTALLATION.md       # Installation instructions
-│   ├── README.md             # Documentation overview
-│   └── TROUBLESHOOTING.md    # Troubleshooting guide
-├── mobile-app/                 # React Native mobile app
-│   ├── package.json          # Mobile app dependencies
-│   └── src/                  # Mobile app source
-│       ├── screens/          # App screens
-│       │   └── HomeScreen.js
-│       └── services/         # API services
-│           └── ApiService.js
-├── modules/                    # Processing modules
-│   ├── base_module.py        # Base module class
-│   ├── module_ai.py          # AI integration module
-│   ├── module_completion.py  # Code completion module
-│   ├── module_debug.py       # Debugging module
-│   ├── module_generic.py     # Generic processing modules
-│   ├── module_python.py      # Python-specific module
-│   ├── module_signature.py   # Signature help module
-│   └── registry.py          # Module registry
-├── monitoring/                 # Monitoring configuration
-│   ├── alert_rules.yml       # Alert rules
-│   ├── dashboard.json        # Dashboard configuration
-│   └── prometheus.yml       # Prometheus configuration
-├── shared/                     # Shared components
-│   ├── config/               # Configuration management
-│   │   ├── init.py
-│   │   └── loader.py
-│   ├── knowledge/            # Knowledge graph
-│   │   └── graph.py
-│   └── schemas/              # Data schemas
-│       └── schemas.py
-├── static/                     # Web assets
-│   ├── css/                  # Stylesheets
-│   │   ├── debugger.css
-│   │   ├── graph.css
-│   │   └── signature.css
-│   ├── dist/                 # Built assets
-│   ├── js/                   # JavaScript
-│   │   ├── completion.js
-│   │   ├── debugger.js
-│   │   ├── graph-explorer.js
-│   │   └── signature.js
-│   ├── scss/                 # SASS styles
-│   └── ts/                   # TypeScript
-├── templates/                  # HTML templates
-│   └── index.html
-├── tests/                      # Test suite
-│   ├── conftest.py          # Test configuration
-│   ├── test_basic_functionality.py
-│   ├── integration/
-│   │   └── test_multimodal.py
-│   └── performance/
-│       └── test_performance.py
-├── vscode-extension/          # VS Code extension
-│   ├── package.json
-│   └── src/
-│       └── extension.ts
-├── .env                       # Environment variables
-├── .env.example               # Environment template
-├── .gitignore                 # Git ignore rules
-├── Dockerfile                 # Docker configuration
-├── LICENSE                     # MIT License
-├── package.json               # Node.js dependencies
-├── README.md                   # This file
-├── requirements.txt           # Python dependencies
-├── setup.py                   # CLI setup
-└── webpack.config.js         # Webpack configuration
-```
+### Multi-Language Support
 
-## 🚀 Installation & Setup
+The system supports over 25 programming languages with language-specific features:
 
-### System Requirements
+**Supported Languages:**
+- Python, JavaScript, TypeScript, Java, C#, C/C++, Go, Rust
+- PHP, Ruby, Swift, Kotlin, Scala, SQL, Bash
+- HTML, CSS, Markdown, R, Lua, Perl, Haskell
+- Elixir, Clojure, F#, VB.NET, Dart, Julia
 
-#### Hardware Requirements
-- **CPU**: 4+ cores (8+ recommended for production)
-- **RAM**: 8GB minimum (16GB+ recommended for ML features)
-- **Storage**: 20GB free space (SSD recommended)
-- **GPU**: CUDA-compatible GPU (optional, recommended for local LLMs)
+**Language-Specific Features:**
+- Syntax highlighting and parsing
+- Language-specific analysis rules
+- Framework-specific optimizations
+- Standard library integration
+- Language-specific completions
 
-#### Software Requirements
-- **Operating System**: Linux, macOS 10.14+, Windows 10/11 (WSL2 recommended)
-- **Python**: 3.8, 3.9, 3.10, or 3.11
-- **PostgreSQL**: 13+ (for database)
-- **Redis**: 6+ (for caching)
-- **Node.js**: 16+ (for frontend)
-- **Docker**: 20.10+ (optional, for containerized deployment)
+### Performance & Monitoring
 
-### Step-by-Step Installation
+#### 1. Load Balancing
+Intelligent request distribution with:
+- Provider performance-based routing
+- Cost-aware routing
+- SLA-based routing
+- Geographic routing
+- Custom routing rules
+
+#### 2. Performance Tracking
+Comprehensive monitoring with:
+- Response time metrics
+- Error rate tracking
+- Resource utilization monitoring
+- Provider performance comparison
+- User experience metrics
+
+#### 3. Resource Optimization
+Efficient resource utilization with:
+- Connection pooling
+- Request batching
+- Response caching
+- Model quantization
+- GPU acceleration
+
+#### 4. Monitoring Dashboards
+Real-time visualization with:
+- System health overview
+- Performance metrics
+- Usage statistics
+- Error tracking
+- Custom dashboards
+
+### Additional Features
+
+#### 1. Knowledge Graph
+Versioned knowledge management with:
+- Automatic knowledge extraction
+- Semantic search capabilities
+- Knowledge versioning
+- Relationship mapping
+- Visualization tools
+
+#### 2. Self-Learning
+Adaptive improvement with:
+- User feedback integration
+- Pattern recognition
+- Behavior analysis
+- Performance optimization
+- Rule refinement
+
+#### 3. Voice Interface
+Hands-free operation with:
+- Speech-to-text conversion
+- Voice command recognition
+- Natural language processing
+- Voice response generation
+- Multi-language support
+
+#### 4. Multimodal Capabilities
+Multi-format input support with:
+- Image analysis
+- Diagram interpretation
+- Handwriting recognition
+- Audio processing
+- Video analysis
+
+## Installation & Setup
+
+### Prerequisites
+
+- Python 3.8+ (tested up to 3.11)
+- PostgreSQL 13+
+- Redis 6+
+- Node.js 16+ (for frontend components)
+- Docker 20+ (optional)
+- 8GB RAM minimum (16GB recommended)
+- 10GB free disk space
+- GPU with CUDA support (recommended for local models)
+
+### Local Development Setup
 
 #### 1. Clone the Repository
 ```bash
-git clone https://github.com/bozozeclown/open_llm.git
-cd open_llm
+git clone https://github.com/yourusername/ai-code-assistant.git
+cd ai-code-assistant
 ```
 
-#### 2. Install System Dependencies
-
-**Ubuntu/Debian:**
+#### 2. Environment Configuration
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-    postgresql postgresql-contrib \
-    postgresql-server-dev-all \
-    redis-server \
-    tesseract-ocr \
-    libtesseract-dev \
-    libpq-dev \
-    libssl-dev \
-    build-essential \
-    python3-dev \
-    nodejs npm \
-    curl wget
+cp .env.example .env
+# Edit .env with your specific configuration
 ```
 
-**macOS (using Homebrew):**
+#### 3. Python Dependencies
 ```bash
-brew install postgresql redis tesseract node
-brew services start postgresql
-brew services start redis
-```
-
-**Windows (WSL2 recommended):**
-```bash
-# Install WSL2
-wsl --install
-# Install dependencies in WSL2
-sudo apt update && sudo apt upgrade
-sudo apt install postgresql redis-server tesseract-ocr libtesseract-dev
-```
-
-#### 3. Set Up Python Environment
-```bash
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# or
-venv\Scripts\activate     # Windows
-
-# Upgrade pip
-pip install --upgrade pip setuptools wheel
-```
-
-#### 4. Install Python Dependencies
-```bash
-# Install core dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Download spaCy language model
-python -m spacy download en_core_web_sm
-
-# Install development dependencies (optional)
-pip install -r requirements-dev.txt
 ```
 
-#### 5. Database Setup
+#### 4. Database Setup
 ```bash
+# Ensure PostgreSQL and Redis are running
+sudo systemctl start postgresql
+sudo systemctl start redis-server
+
 # Create database user and database
 sudo -u postgres createuser --interactive
-# When prompted, create user 'openllm_user' with password
-
 sudo -u postgres createdb openllm
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE openllm TO openllm_user;"
 
-# Verify database connection
-psql -h localhost -U openllm_user -d openllm -c "SELECT version();"
+# Run migrations (handled automatically on first start)
 ```
 
-#### 6. Configure Environment
+#### 5. Install spaCy Model
 ```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit environment configuration
-nano .env  # or your preferred editor
+python -m spacy download en_core_web_sm
 ```
 
-**Required Environment Variables:**
+#### 6. Install Additional Dependencies
 ```bash
+# For frontend components
+cd static
+npm install
+npm run build
+
+# For VS Code extension
+cd vscode-extension
+npm install
+npm run build
+```
+
+#### 7. Start the Application
+```bash
+python -m core.service
+```
+
+### Docker Installation
+
+#### 1. Standard Docker Setup
+```bash
+cd deploy/docker
+docker-compose up -d
+```
+
+#### 2. Enterprise Docker Setup
+```bash
+cd deploy/enterprise
+docker-compose -f docker-compose.enterprise.yml up -d
+```
+
+#### 3. Custom Docker Build
+```bash
+# Build custom image
+docker build -t ai-code-assistant:custom .
+
+# Run with custom configuration
+docker run -d \
+  --name ai-code-assistant \
+  -p 8000:8000 \
+  -v $(pwd)/configs:/app/configs \
+  -v $(pwd)/data:/app/data \
+  ai-code-assistant:custom
+```
+
+### Production Deployment
+
+#### 1. Kubernetes Deployment
+```bash
+# Standard deployment
+kubectl apply -f deploy/k8s/
+
+# Enterprise deployment
+kubectl apply -f deploy/k8s/enterprise/
+
+# Custom namespace
+kubectl apply -f deploy/k8s/namespace.yaml
+kubectl config set-context --current --namespace=ai-code-assistant
+```
+
+#### 2. Traditional Server Deployment
+```bash
+# Install dependencies
+sudo apt-get update
+sudo apt-get install postgresql redis-server nginx python3 python3-pip nodejs npm
+
+# Create database
+sudo -u postgres createdb openllm
+sudo -u postgres createuser user
+
+# Install application
+pip3 install -r requirements.txt
+python3 setup.py install
+
+# Configure and start services
+sudo systemctl start postgresql
+sudo systemctl start redis-server
+sudo systemctl enable ai-code-assistant
+sudo systemctl start ai-code-assistant
+
+# Configure nginx
+sudo cp deploy/nginx.conf /etc/nginx/sites-available/ai-code-assistant
+sudo ln -s /etc/nginx/sites-available/ai-code-assistant /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
+```
+
+#### 3. Cloud Deployment
+```bash
+# AWS deployment
+cd deploy/cloud/aws
+./deploy.sh
+
+# GCP deployment
+cd deploy/cloud/gcp
+./deploy.sh
+
+# Azure deployment
+cd deploy/cloud/azure
+./deploy.sh
+```
+
+## Configuration
+
+### Environment Variables
+
+The `.env` file contains critical configuration settings:
+
+```bash
+# Application Environment
+ENVIRONMENT=development  # development, testing, production
+
+# API Keys for LLM Providers
+GROQ_API_KEY="your_grok_api_key"
+HF_API_KEY="your_huggingface_api_key" 
+TEXTGEN_API_KEY="your_textgen_api_key"
+
 # Database Configuration
-DATABASE_URL=postgresql://openllm_user:your_password@localhost:5432/openllm
-REDIS_URL=redis://localhost:6379
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=openllm
+DB_USER=user
+DB_PASSWORD=secure_password
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PASSWORD=
 
 # Security
-SECRET_KEY=your_super_secret_key_change_this
-JWT_SECRET=your_jwt_secret_key_change_this
+SECRET_KEY="your_super_secret_key_change_this"
+JWT_SECRET="your_jwt_secret_key_change_this"
 
 # Application Settings
 DEBUG=true
-ENVIRONMENT=development
 LOG_LEVEL=INFO
 HOST=0.0.0.0
 PORT=8000
 
-# LLM Provider API Keys (optional but recommended)
-GROQ_API_KEY=your_groq_api_key
-HF_API_KEY=your_huggingface_api_key
-TEXTGEN_API_KEY=your_textgen_api_key
+# API Settings
+DEFAULT_TIMEOUT=30
+ANALYSIS_TIMEOUT=60
+MAX_TIMEOUT=120
+
+# Monitoring
+PROMETHEUS_ENABLED=true
+GRAFANA_ENABLED=true
+
+# Enterprise Features
+ENTERPRISE_ENABLED=false
+SAML_IDP_METADATA_URL=""
+SP_ENTITY_ID=""
+SP_KEY_FILE=""
+SP_CERT_FILE=""
+
+# Model Settings
+DEFAULT_MODEL="codellama"
+MODEL_CACHE_DIR="./models"
+
+# Cache Settings
+CACHE_TTL=3600
+CACHE_MAX_SIZE=1000
+
+# Rate Limiting
+RATE_LIMIT_REQUESTS=100
+RATE_LIMIT_WINDOW=60
+
+# SSL (for production)
+SSL_CERT_FILE=""
+SSL_KEY_FILE=""
 ```
 
-#### 7. Initialize Database Schema
-```bash
-# Run database initialization
-python -c "
-import asyncio
-import asyncpg
-import sys
+### Configuration Files
 
-async def setup_db():
-    try:
-        conn = await asyncpg.connect(
-            user='openllm_user',
-            password='your_password',
-            database='openllm',
-            host='localhost'
-        )
-        
-        # Create tables
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS requests (
-                id SERIAL PRIMARY KEY,
-                request_timestamp TIMESTAMP DEFAULT NOW(),
-                response_timestamp TIMESTAMP,
-                status_code INTEGER,
-                user_id TEXT,
-                metadata JSONB
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS events (
-                event_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                event_type VARCHAR(50),
-                timestamp TIMESTAMP DEFAULT NOW(),
-                data JSONB
-            )
-        ''')
-        
-        await conn.execute('''
-            CREATE TABLE IF NOT EXISTS sessions (
-                session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                user_id TEXT,
-                session_data JSONB,
-                created_at TIMESTAMP DEFAULT NOW(),
-                last_accessed TIMESTAMP DEFAULT NOW()
-            )
-        ''')
-        
-        await conn.close()
-        print('✅ Database initialized successfully')
-    except Exception as e:
-        print(f'❌ Database initialization failed: {e}')
-        sys.exit(1)
+The system uses YAML configuration files in the `configs/` directory:
 
-asyncio.run(setup_db())
-"
-```
-
-#### 8. Verify Installation
-```bash
-# Test Python imports
-python -c "
-import torch
-import transformers
-import fastapi
-import networkx
-import spacy
-import asyncpg
-import redis
-import plotly
-import PIL
-print('✅ All core imports successful')
-"
-
-# Test database connection
-python -c "
-import asyncio
-import asyncpg
-
-async def test_db():
-    conn = await asyncpg.connect(
-        'postgresql://openllm_user:your_password@localhost/openllm'
-    )
-    await conn.close()
-    print('✅ Database connection successful')
-
-asyncio.run(test_db())
-"
-
-# Test Redis connection
-python -c "
-import redis
-r = redis.Redis(host='localhost', port=6379, db=0)
-r.ping()
-print('✅ Redis connection successful')
-"
-
-# Test core components
-python -c "
-from core.orchestrator import Orchestrator
-from core.service import AIService
-from modules.registry import ModuleRegistry
-from core.enterprise.auth import EnterpriseAuthManager
-print('✅ Core components import successful')
-"
-```
-
-### Alternative: Docker Installation
-
-#### Quick Start with Docker Compose
-```bash
-# Clone repository
-git clone https://github.com/bozozeclown/open_llm.git
-cd open_llm
-
-# Start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-#### Enterprise Docker Deployment
-```bash
-# Use enterprise configuration
-cd deploy/enterprise
-docker-compose -f docker-compose.enterprise.yml up -d
-
-# This includes:
-# - Load balanced application instances
-# - PostgreSQL with replication
-# - Redis cluster
-# - Elasticsearch for logging
-# - Prometheus & Grafana for monitoring
-# - Nginx reverse proxy
-```
-
-## 📖 Comprehensive Usage Guide
-
-### Web Interface
-
-#### Starting the Service
-```bash
-# Development mode
-python -m core.service
-
-# Production mode
-python -m core.service --host 0.0.0.0 --port 8000 --env production
-
-# With custom configuration
-python -m core.service --config configs/base.yaml
-```
-
-#### Accessing the Interface
-- **Main Application**: http://localhost:8000
-- **Health Check**: http://localhost:8000/health
-- **API Documentation**: http://localhost:8000/docs
-- **Analytics Dashboard**: http://localhost:8000/analytics/dashboard
-- **Knowledge Graph Explorer**: http://localhost:8000/graph-explorer
-
-### CLI Tool Usage
-
-#### Installation
-```bash
-# Install CLI tool
-pip install -e .
-
-# Or install in development mode
-pip install -e .
-```
-
-#### Available Commands
-
-**Query Processing:**
-```bash
-# Basic query
-openllm query "How to reverse a list in Python?"
-
-# With language context
-openllm query "How to handle async/await in JavaScript?" --language javascript
-
-# With custom API endpoint
-openllm query "Explain decorators in Python" --api-url http://localhost:8000
-```
-
-**Code Analysis:**
-```bash
-# Analyze code file
-openllm analyze -f my_code.py --language python --type refactor
-
-# Quality analysis
-openllm analyze -f app.js --language javascript --type quality
-
-# Security analysis
-openllm analyze -f server.py --language python --type security
-```
-
-**Collaboration Sessions:**
-```bash
-# Create public session
-openllm session "Python Review" --code "print('Hello World')" --language python --public
-
-# Create private session
-openllm session "Private Debug" --code "def broken_function():" --language python
-
-# Join existing session
-openllm session join --session-id abc123 --user-name "Developer"
-```
-
-**Knowledge Management:**
-```bash
-# Create knowledge version
-openllm version create "Added optimization patterns" --author "developer"
-
-# List versions
-openllm version list
-
-# Restore version
-openllm version restore --version-id abc123
-```
-
-### API Usage
-
-#### Authentication
-```python
-import requests
-import json
-
-# Set up authentication
-API_KEY = "your_api_key"
-BASE_URL = "http://localhost:8000"
-
-headers = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Content-Type": "application/json"
-}
-```
-
-#### Basic Query
-```python
-# Simple query
-response = requests.post(
-    f"{BASE_URL}/process",
-    headers=headers,
-    json={
-        "content": "How to implement binary search in Python?",
-        "metadata": {
-            "language": "python",
-            "priority": "normal"
-        }
-    }
-)
-
-result = response.json()
-print(result["content"])
-```
-
-#### Code Analysis
-```python
-# Code refactoring analysis
-response = requests.post(
-    f"{BASE_URL}/process",
-    headers=headers,
-    json={
-        "content": "Analyze this Python code for refactoring opportunities",
-        "context": {
-            "code": """
-def calculate_total(items):
-    total = 0
-    for i in range(len(items)):
-        if items[i] > 0:
-            total += items[i]
-    return total
-            """,
-            "language": "python",
-            "analysis_type": "refactor"
-        },
-        "metadata": {
-            "complexity": "medium",
-            "require_quality": True
-        }
-    }
-)
-
-suggestions = response.json()
-print("Refactoring suggestions:")
-for suggestion in suggestions["metadata"]["suggestions"]:
-    print(f"- {suggestion}")
-```
-
-#### Multi-Modal Analysis
-```python
-import base64
-
-# Analyze code from image
-with open("code_screenshot.png", "rb") as image_file:
-    image_data = base64.b64encode(image_file.read()).decode()
-
-response = requests.post(
-    f"{BASE_URL}/process",
-    headers=headers,
-    json={
-        "content": "Extract and analyze the code from this image",
-        "context": {
-            "image_data": image_data,
-            "analysis_type": "multimodal"
-        },
-        "metadata": {
-            "source": "image_upload"
-        }
-    }
-)
-
-analysis_result = response.json()
-print(f"Detected language: {analysis_result['language']}")
-print(f"Extracted code: {analysis_result['structured_code']}")
-```
-
-#### Collaboration API
-```python
-# Create collaboration session
-response = requests.post(
-    f"{BASE_URL}/collaboration/sessions",
-    headers=headers,
-    json={
-        "name": "Team Code Review",
-        "code": "def example_function():\n    pass",
-        "language": "python",
-        "is_public": False
-    }
-)
-
-session = response.json()
-session_id = session["id"]
-print(f"Session created: {session_id}")
-print(f"Share URL: {session['share_url']}")
-
-# Update code in session
-requests.post(
-    f"{BASE_URL}/collaboration/sessions/{session_id}/code",
-    headers=headers,
-    json={
-        "code": "def example_function():\n    return 'Hello World'",
-        "cursor_position": 25
-    }
-)
-```
-
-### Voice Commands
-
-#### Setting Up Voice Interaction
-```bash
-# Start voice listening
-curl -X POST http://localhost:8000/voice/command
-
-# Available voice commands:
-# - "Hey assistant, how do I reverse a list in Python?"
-# - "Hey assistant, analyze this code for security issues"
-# - "Hey assistant, create a collaboration session"
-# - "Hey assistant, stop listening"
-
-# Stop voice listening
-curl -X POST http://localhost:8000/voice/stop
-```
-
-#### Programmatic Voice Commands
-```python
-# Send voice command
-response = requests.post(
-    f"{BASE_URL}/voice/query",
-    headers=headers,
-    json={
-        "command": "How to implement error handling in Python?"
-    }
-)
-
-voice_response = response.json()
-print(f"Response: {voice_response['content']}")
-print(f"Spoken response available: {voice_response['metadata']['voice_available']}")
-```
-
-### Offline Mode
-
-#### Automatic Caching
-The system automatically caches responses for offline use:
-
-```python
-# First request (online)
-response = requests.post(
-    f"{BASE_URL}/process",
-    headers=headers,
-    json={"content": "How to reverse a list in Python?"}
-)
-
-# Second request (uses cached response if offline)
-response = requests.post(
-    f"{BASE_URL}/process",
-    headers=headers,
-    json={"content": "How to reverse a list in Python?"}
-)
-
-print(f"Source: {response.json()['metadata']['source']}")
-# Output: "offline_cache" or "online"
-```
-
-#### Managing Offline Cache
-```bash
-# Check cache statistics
-curl http://localhost:8000/offline/stats
-
-# Clean up expired cache entries
-curl -X POST http://localhost:8000/offline/cleanup
-```
-
-## 🔧 Advanced Configuration
-
-### LLM Provider Configuration
-
-#### Ollama (Local Models)
+#### `configs/base.yaml`
 ```yaml
-# configs/integration.yaml
+project:
+  name: "AI-code-assistant"
+  version: "0.1.0"
+  description: "AI-powered coding assistant with multi-LLM support"
+
+paths:
+  data_raw: "./data/raw"
+  data_processed: "./data/processed"
+  model_checkpoints: "./models"
+  logs: "./logs"
+  static: "./static"
+  templates: "./templates"
+
+languages:
+  config_file: "./configs/languages.yaml"
+  quality_standards_file: "./configs/quality_standards.yaml"
+
+security:
+  config_file: "./configs/security.yaml"
+
+database:
+  config_file: "./configs/database.yaml"
+
+integration:
+  config_file: "./configs/integration.yaml"
+
+models:
+  config_file: "./configs/model.yaml"
+
+api:
+  default_timeout: 30
+  max_timeout: 120
+  analysis_timeout: 60
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/app.log"
+  max_size: "10MB"
+  backup_count: 5
+```
+
+#### `configs/database.yaml`
+```yaml
+database:
+  default_type: "postgresql"
+  
+  environments:
+    development:
+      host: "localhost"
+      port: 5432
+      database: "openllm"
+      username: "user"
+      password: "password"
+      pool_size: 10
+      max_overflow: 20
+      pool_timeout: 30
+      pool_recycle: 3600
+      
+    testing:
+      host: "localhost"
+      port: 5432
+      database: "openllm_test"
+      username: "postgres"
+      password: "postgres"
+      pool_size: 5
+      max_overflow: 10
+      pool_timeout: 30
+      pool_recycle: 3600
+      
+    production:
+      host: "${DB_HOST}"
+      port: "${DB_PORT:-5432}"
+      database: "${DB_NAME}"
+      username: "${DB_USER}"
+      password: "${DB_PASSWORD}"
+      pool_size: 20
+      max_overflow: 30
+      pool_timeout: 30
+      pool_recycle: 3600
+      ssl_mode: "require"
+  
+  redis:
+    development:
+      host: "localhost"
+      port: 6379
+      db: 0
+      password: ""
+      pool_size: 10
+      timeout: 5
+      
+    testing:
+      host: "localhost"
+      port: 6379
+      db: 1
+      password: ""
+      pool_size: 5
+      timeout: 5
+      
+    production:
+      host: "${REDIS_HOST}"
+      port: "${REDIS_PORT:-6379}"
+      db: "${REDIS_DB:-0}"
+      password: "${REDIS_PASSWORD}"
+      pool_size: 20
+      timeout: 5
+  
+  connection:
+    timeout: 30
+    command_timeout: 60
+    max_retries: 3
+    retry_delay: 1
+  
+  pool:
+    size: 10
+    max_overflow: 20
+    timeout: 30
+    recycle: 3600
+    pre_ping: true
+  
+  migrations:
+    auto_run: true
+    directory: "./migrations"
+    table: "alembic_version"
+  
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"
+    retention_days: 30
+    directory: "./backups/database"
+    compression: true
+    encryption: true
+  
+  monitoring:
+    enabled: true
+    slow_query_threshold: 1.0
+    log_slow_queries: true
+    pool_monitoring: true
+    health_check_interval: 60
+```
+
+#### `configs/integration.yaml`
+```yaml
 plugins:
   ollama:
     enabled: true
@@ -814,12 +678,9 @@ plugins:
       base_url: "http://localhost:11434"
       default_model: "codellama"
       timeout: 30
-      batch_size: 4
-```
+      batch_size: 1
+      priority: 1
 
-#### vLLM (High-Performance Inference)
-```yaml
-plugins:
   vllm:
     enabled: true
     config:
@@ -827,933 +688,1968 @@ plugins:
       tensor_parallel_size: 1
       gpu_memory_utilization: 0.9
       max_batch_size: 2048
-```
+      priority: 0
 
-#### HuggingFace
-```yaml
-plugins:
   huggingface:
-    enabled: true
+    enabled: false
     config:
       api_key: "${HF_API_KEY}"
       model_name: "codellama/CodeLlama-7b-hf"
       device: "auto"
       quantize: false
       batch_size: 2
-```
+      priority: 3
 
-#### Grok AI
-```yaml
-plugins:
+  textgen:
+    enabled: true
+    config:
+      base_url: "http://localhost:5000"
+      api_key: "${TEXTGEN_API_KEY}"
+      batch_size: 4
+      timeout: 45
+      priority: 2
+
   grok:
     enabled: true
     config:
       api_key: "${GROQ_API_KEY}"
       rate_limit: 5
       timeout: 15
-```
+      priority: 4
+
+  lmstudio:
+    enabled: false
+    config:
+      base_url: "http://localhost:1234"
+      timeout: 60
+      batch_support: false
+      priority: 5
+
+settings:
+  default_model: "codellama"
+  priority_order: ["vllm", "ollama", "textgen", "huggingface", "grok", "lmstudio"]
+  fallback_enabled: true
+  max_fallbacks: 3
+  load_balancing: "priority"
 
-### SLA Configuration
-
-#### Service Level Agreements
-```yaml
-# configs/sla_tiers.yaml
-tiers:
-  critical:
-    min_accuracy: 0.96
-    max_latency: 1.2
-    allowed_providers: ["gpt-4", "claude-2", "vllm"]
-    cost_multiplier: 2.5
-    
-  standard:
-    min_accuracy: 0.88  
-    max_latency: 2.5
-    allowed_providers: ["gpt-3.5", "claude-instant", "llama2"]
-    
-  economy:
-    min_accuracy: 0.75
-    max_latency: 7.0
-    allowed_providers: ["llama2", "local"]
-```
-
-### Quality Standards
-
-#### Code Quality Configuration
-```yaml
-# configs/quality_standards.yaml
-quality_standards:
-  min_complexity: 0.4
-  required_keys: ["answer", "explanation"]
-  banned_patterns:
-    - "eval("
-    - "system("
-    - "os.popen"
-    - "subprocess.run"
-    - "exec("
-    - "__import__"
-  max_response_length: 5000
-  min_confidence: 0.7
-```
-
-### Enterprise Configuration
-
-#### SSO Integration
-```python
-# Enterprise authentication setup
-enterprise_config = {
-    "oauth": {
-        "google": {
-            "enabled": True,
-            "client_id": "your_google_client_id",
-            "client_secret": "your_google_client_secret",
-            "scopes": ["openid", "email", "profile"]
-        },
-        "microsoft": {
-            "enabled": True,
-            "client_id": "your_microsoft_client_id",
-            "client_secret": "your_microsoft_client_secret",
-            "scopes": ["openid", "email", "profile"]
-        }
-    },
-    "saml": {
-        "enabled": True,
-        "sp_entity_id": "https://your-domain.com/metadata",
-        "idp_metadata_url": "https://your-idp.com/metadata",
-        "sp_key_file": "/path/to/sp_key.pem",
-        "sp_cert_file": "/path/to/sp_cert.pem"
-    }
-}
-```
-
-#### Team Management
-```python
-# Team and permission configuration
-from core.enterprise.teams import TeamManager, TeamRole, Permission
-
-# Create team
-team_manager = TeamManager()
-team = team_manager.create_team(
-    name="Development Team",
-    description="Core development team",
-    owner_id="user1",
-    owner_email="dev@company.com",
-    owner_name="Lead Developer"
-)
-
-# Add members with different roles
-team_manager.invite_member(
-    team_id=team.team_id,
-    inviter_id="user1",
-    invitee_email="dev2@company.com",
-    invitee_name="Developer 2",
-    role=TeamRole.MEMBER
-)
-
-# Check permissions
-can_edit = team_manager.check_permission(
-    user_id="dev2@company.com",
-    team_id=team.team_id,
-    permission=Permission.UPDATE_RESOURCE
-)
-```
-
-## 📊 Analytics & Monitoring
-
-### Performance Dashboard
-
-Access the comprehensive analytics dashboard at `http://localhost:8000/analytics/dashboard` to monitor:
-
-#### Usage Statistics
-- **Request Trends**: Hourly and daily request patterns
-- **Active Users**: Real-time user activity tracking
-- **Success Rates**: Request success/failure analysis
-- **Response Times**: Latency distribution and percentiles
-
-#### System Health
-- **Component Status**: Health of all system components
-- **Resource Usage**: CPU, memory, and storage utilization
-- **Database Performance**: Query performance and connection metrics
-- **Cache Performance**: Hit rates and cache efficiency
-
-#### User Analytics
-- **Activity Patterns**: User behavior and usage patterns
-- **Feature Adoption**: Usage of different features and capabilities
-- **Performance by User**: Individual user metrics and patterns
-- **Geographic Distribution**: User location and access patterns
-
-#### Code Quality Trends
-- **Language Distribution**: Programming language usage statistics
-- **Refactoring Patterns**: Common refactoring operations
-- **Quality Metrics**: Code quality trends over time
-- **Error Patterns**: Common issues and their resolution
-
-### Prometheus Metrics
-
-The system exposes comprehensive metrics for monitoring:
-
-#### Key Metrics
-```yaml
-# Core metrics
-llm_requests_total: Counter by module, status
-llm_response_latency_seconds: Histogram by provider
-cache_hit_ratio: Gauge
-knowledge_graph_nodes: Gauge
-knowledge_graph_edges: Gauge
-
-# Business metrics
-code_analysis_requests_total: Counter by analysis_type
-collaboration_sessions_active: Gauge
-user_feedback_total: Counter by rating
-```
-
-#### Alerting Configuration
-```yaml
-# monitoring/alert_rules.yml
-groups:
-  - name: open_llm_alerts
-    rules:
-      - alert: HighErrorRate
-        expr: rate(llm_requests_total{status="failed"}[5m]) / rate(llm_requests_total[5m]) > 0.1
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High error rate detected"
-          description: "Error rate is {{ $value | printf "%.2f" }} for the last 5 minutes"
-      
-      - alert: HighLatency
-        expr: histogram_quantile(0.95, llm_response_latency_seconds_bucket) > 5
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          summary: "High response latency"
-          description: "95th percentile latency is {{ $value }} seconds"
-      
-      - alert: LowCacheHitRate
-        expr: cache_hit_ratio < 0.5
-        for: 10m
-        labels:
-          severity: info
-        annotations:
-          summary: "Low cache hit rate"
-          description: "Cache hit ratio is {{ $value | printf "%.2f" }}"
-```
-
-## 🛠️ Development Guide
-
-### Setting Up Development Environment
-
-#### Prerequisites
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Install pre-commit hooks
-pre-commit install
-
-# Install additional tools
-npm install -g typescript webpack webpack-cli
-```
-
-#### Running in Development Mode
-```bash
-# Start development server with hot reload
-uvicorn core.service:app --reload --host 0.0.0.0 --port 8000
-
-# Start frontend development server
-cd static
-npm run start
-
-# Run tests in watch mode
-pytest --watch
-```
-
-### Code Structure and Patterns
-
-#### Module Development
-```python
-# Creating a new module
-from modules.base_module import BaseModule
-from shared.schemas import Query, Response
-from core.orchestrator import Capability
-
-class CustomModule(BaseModule):
-    MODULE_ID = "custom_module"
-    VERSION = "0.1.0"
-    CAPABILITIES = [Capability.CUSTOM_FEATURE]
-    PRIORITY = 5
-    
-    async def initialize(self):
-        """Initialize module-specific resources"""
-        self._load_custom_knowledge()
-        self._ready = True
-    
-    async def process(self, query: Query) -> Response:
-        """Process query using custom logic"""
-        # Extract context from query
-        context = query.context.get("custom_data", {})
-        
-        # Process using custom logic
-        result = self._custom_processing(query.content, context)
-        
-        return Response(
-            content=result,
-            metadata={
-                "module": self.MODULE_ID,
-                "processing_time": self._measure_time()
-            }
-        )
-    
-    def _custom_processing(self, content, context):
-        """Implement custom processing logic"""
-        # Your custom processing here
-        return f"Processed: {content}"
-```
-
-#### Integration Development
-```python
-# Adding a new LLM provider
-from core.plugin import PluginBase, PluginMetadata
-from typing import Dict, Any
-
-class CustomProviderPlugin(PluginBase):
-    def get_metadata(self):
-        return PluginMetadata(
-            name="custom_provider",
-            version="0.1.0",
-            required_config={
-                "api_key": str,
-                "base_url": str,
-                "model": str
-            },
-            dependencies=["requests"],
-            description="Custom LLM provider integration"
-        )
-    
-    def initialize(self):
-        self.api_key = self.config["api_key"]
-        self.base_url = self.config["base_url"]
-        self.model = self.config["model"]
-        self._initialized = True
-        return True
-    
-    def execute(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute request against custom provider"""
-        response = requests.post(
-            f"{self.base_url}/v1/completions",
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": self.model,
-                "prompt": input_data["prompt"],
-                "max_tokens": input_data.get("max_tokens", 150)
-            }
-        )
-        
-        return response.json()
-```
-
-### Testing
-
-#### Running Tests
-```bash
-# Run all tests
-pytest tests/
-
-# Run specific test categories
-pytest tests/unit/
-pytest tests/integration/
-pytest tests/performance/
-
-# Run with coverage
-pytest --cov=core tests/ --cov-report=html
-
-# Run specific test file
-pytest tests/test_basic_functionality.py
-
-# Run tests with verbose output
-pytest -v tests/
-```
-
-#### Test Structure
-```
-tests/
-├── conftest.py              # Test configuration and fixtures
-├── test_basic_functionality.py  # Basic functionality tests
-├── integration/
-│   └── test_multimodal.py    # Integration tests
-└── performance/
-    └── test_performance.py   # Performance tests
-```
-
-#### Writing Tests
-```python
-# Example test
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-from shared.schemas import Query, Response
-from core.orchestrator import Orchestrator
-
-@pytest.mark.asyncio
-async def test_custom_query_processing():
-    """Test custom query processing functionality"""
-    # Mock dependencies
-    mock_validator = MagicMock()
-    mock_validator.validate.return_value = {
-        "passed": True,
-        "checks": {},
-        "original_response": Response(content="test response")
-    }
-    
-    # Create orchestrator with mocked dependencies
-    orchestrator = Orchestrator(
-        validator=mock_validator,
-        # ... other mocked dependencies
-    )
-    
-    # Test query
-    query = Query(content="test query", metadata={"type": "custom"})
-    response = await orchestrator.route_query(query)
-    
-    # Assertions
-    assert response.content == "test response"
-    assert "custom" in response.metadata
-```
-
-## 🚀 Deployment
-
-### Production Deployment
-
-#### Using Docker
-```bash
-# Build production image
-docker build -t openllm:latest .
-
-# Run with environment variables
-docker run -d \
-  --name openllm \
-  -p 8000:8000 \
-  -e DATABASE_URL="postgresql://user:pass@db:5432/openllm" \
-  -e REDIS_URL="redis://redis:6379" \
-  openllm:latest
-```
-
-#### Using Docker Compose
-```bash
-# Production deployment
-docker-compose -f deploy/docker/docker-compose.yml up -d
-
-# Scale application
-docker-compose up -d --scale app=3
-
-# View logs
-docker-compose logs -f app
-```
-
-#### Enterprise Deployment
-```bash
-# Enterprise deployment with all components
-cd deploy/enterprise
-docker-compose -f docker-compose.enterprise.yml up -d
-
-# This includes:
-# - Load balanced application (3 instances)
-# - PostgreSQL with replication
-# - Redis cluster
-# - Elasticsearch for logging
-# - Prometheus & Grafana for monitoring
-# - Nginx reverse proxy with SSL
-```
-
-### Kubernetes Deployment
-
-#### Kubernetes Manifests
-```yaml
-# k8s-deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: openllm
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: openllm
-  template:
-    metadata:
-      labels:
-        app: openllm
-    spec:
-      containers:
-      - name: openllm
-        image: openllm:latest
-        ports:
-        - containerPort: 8000
-        env:
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: openllm-secrets
-              key: database-url
-        - name: REDIS_URL
-          valueFrom:
-            secretKeyRef:
-              name: openllm-secrets
-              key: redis-url
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8000
-          initialDelaySeconds: 5
-          periodSeconds: 5
-```
-
-#### Applying Kubernetes Configuration
-```bash
-# Apply configuration
-kubectl apply -f k8s-deployment.yaml
-
-# Check deployment status
-kubectl get pods -l app=openllm
-
-# Scale deployment
-kubectl scale deployment openllm --replicas=5
-
-# View logs
-kubectl logs -f deployment/openllm
-```
-
-### Environment-Specific Deployment
-
-#### Development Environment
-```yaml
-# configs/development.yaml
-debug: true
-log_level: DEBUG
-reload: true
-monitoring: false
-```
-
-#### Production Environment
-```yaml
-# configs/production.yaml
-debug: false
-log_level: INFO
-reload: false
-monitoring: true
-ssl:
-  enabled: true
-  cert_file: /etc/ssl/cert.pem
-  key_file: /etc/ssl/key.pem
-```
-
-#### Enterprise Environment
-```yaml
-# configs/enterprise.yaml
-debug: false
-log_level: WARNING
-reload: false
-monitoring: true
-enterprise:
-  enabled: true
-  audit_logging: true
-  sso:
-    enabled: true
-  team_management:
-    enabled: true
-```
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-#### Installation Problems
-```bash
-# Python version issues
-python --version  # Ensure 3.8+
-which python   # Check correct Python is being used
-
-# Database connection issues
-sudo systemctl status postgresql
-sudo -u postgres psql -c "SELECT version();"
-
-# Redis connection issues
-sudo systemctl status redis-server
-redis-cli ping
-
-# Permission issues
-chmod +x scripts/setup.sh
-sudo chown -R $USER:$USER /path/to/openllm
-```
-
-#### Runtime Issues
-```bash
-# Port already in use
-lsof -i :8000
-kill -9 <PID>
-
-# Memory issues
-free -h
-top -o %MEM
-
-# Database connection issues
-psql -h localhost -U openllm_user -d openllm -c "SELECT version();"
-
-# Redis connection issues
-redis-cli ping
-```
-
-#### Performance Issues
-```bash
-# Check system resources
-htop
-df -h
-
-# Monitor database performance
-sudo -u postgres psql -c "SELECT * FROM pg_stat_activity;"
-
-# Check Redis performance
-redis-cli info memory
-
-# Monitor application logs
-tail -f logs/app.log
-```
-
-### Debug Mode
-
-#### Enable Debug Logging
-```bash
-# Set environment variable
-export LOG_LEVEL=DEBUG
-
-# Or in .env file
-echo "LOG_LEVEL=DEBUG" >> .env
-
-# Restart application
-python -m core.service
-```
-
-#### Health Checks
-```bash
-# Basic health check
-curl http://localhost:8000/health
-
-# Detailed health check
-curl http://localhost:8000/health | jq .
-
-# Component health check
-curl http://localhost:8000/health/components
-```
-
-### Performance Optimization
-
-#### Database Optimization
-```sql
--- Add indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_requests_timestamp ON requests(request_timestamp);
-CREATE INDEX IF NOT EXISTS idx_events_type_timestamp ON events(event_type, timestamp);
-CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
-
--- Analyze slow queries
-SELECT query, mean_time, calls 
-FROM pg_stat_statements 
-ORDER BY mean_time DESC 
-LIMIT 10;
-```
-
-#### Redis Optimization
-```bash
-# Check Redis memory usage
-redis-cli info memory
-
-# Optimize Redis configuration
-# In redis.conf
-maxmemory 1gb
-maxmemory-policy allkeys-lru
-save 900 1
-save 300 10
-save 60 10000
-```
-
-#### Application Optimization
-```python
-# Enable caching in configuration
-# configs/integration.yaml
 batching:
   enabled: true
   max_batch_size: 8
   max_wait_ms: 50
+  timeout_multiplier: 1.5
 
-# Optimize model loading
-# configs/model.yaml
-model_cache:
+health_check_interval: 60
+health_check_timeout: 10
+
+load_balancing:
+  update_interval: 10
+  min_requests: 20
+  priority_bump: 2.0
+  track_metrics: true
+  metrics_window: 300
+
+routing:
+  task_routing:
+    code_analysis: ["vllm", "ollama"]
+    code_generation: ["vllm", "ollama", "textgen"]
+    general_query: ["grok", "huggingface"]
+    security_analysis: ["vllm", "ollama"]
+  
+  size_routing:
+    small: ["grok", "huggingface"]
+    medium: ["ollama", "textgen"]
+    large: ["vllm"]
+  
+  language_routing:
+    python: ["vllm", "ollama"]
+    javascript: ["vllm", "ollama", "textgen"]
+    other: ["grok", "huggingface"]
+
+capabilities:
+  vllm:
+    supports_batching: true
+    max_tokens: 4096
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  ollama:
+    supports_batching: false
+    max_tokens: 2048
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  textgen:
+    supports_batching: true
+    max_tokens: 2048
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  huggingface:
+    supports_batching: true
+    max_tokens: 4096
+    streaming: false
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  grok:
+    supports_batching: false
+    max_tokens: 4096
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+  
+  lmstudio:
+    supports_batching: false
+    max_tokens: 2048
+    streaming: true
+    supports_python: true
+    supports_javascript: true
+    supports_other: true
+```
+
+#### `configs/languages.yaml`
+```yaml
+languages:
+  priority: [
+    "python", "csharp", "c", "javascript", "typescript", 
+    "html", "css", "java", "cpp", "go", "rust", "php", 
+    "ruby", "swift", "kotlin", "scala", "sql", "bash", 
+    "markdown", "r", "lua", "perl", "haskell", "elixir", 
+    "clojure", "fsharp", "vbnet", "dart", "julia"
+  ]
+  
+  settings:
+    python:
+      extensions: [".py", ".pyw"]
+      shebang: ["#!/usr/bin/python", "#!/usr/bin/env python"]
+      comment_prefix: "#"
+      supports_ast: true
+      linters: ["flake8", "pylint", "mypy"]
+      formatters: ["black", "autopep8"]
+      test_frameworks: ["pytest", "unittest"]
+      
+    javascript:
+      extensions: [".js", ".jsx", ".mjs"]
+      shebang: ["#!/usr/bin/node", "#!/usr/bin/env node"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["eslint", "jshint"]
+      formatters: ["prettier", "eslint"]
+      test_frameworks: ["jest", "mocha"]
+      
+    typescript:
+      extensions: [".ts", ".tsx"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["eslint", "tslint"]
+      formatters: ["prettier"]
+      test_frameworks: ["jest", "mocha"]
+      
+    java:
+      extensions: [".java"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["checkstyle", "pmd"]
+      formatters: ["google-java-format"]
+      test_frameworks: ["junit", "testng"]
+      
+    csharp:
+      extensions: [".cs"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["stylecop", "roslyn"]
+      formatters: ["dotnet-format"]
+      test_frameworks: ["nunit", "xunit"]
+      
+    c:
+      extensions: [".c", ".h"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["clang-tidy", "cppcheck"]
+      formatters: ["clang-format"]
+      test_frameworks: ["unity", "cmocka"]
+      
+    cpp:
+      extensions: [".cpp", ".hpp", ".cc", ".cxx"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["clang-tidy", "cppcheck"]
+      formatters: ["clang-format"]
+      test_frameworks: ["googletest", "catch2"]
+      
+    go:
+      extensions: [".go"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["golint", "golangci-lint"]
+      formatters: ["gofmt", "goimports"]
+      test_frameworks: ["testing"]
+      
+    rust:
+      extensions: [".rs"]
+      comment_prefix: ["//", "/*", "///"]
+      supports_ast: false
+      linters: ["clippy"]
+      formatters: ["rustfmt"]
+      test_frameworks: ["cargo-test"]
+      
+    php:
+      extensions: [".php", ".php3", ".php4", ".php5", ".phtml"]
+      comment_prefix: ["//", "#", "/*"]
+      supports_ast: false
+      linters: ["phpcs", "phpmd"]
+      formatters: ["php-cs-fixer"]
+      test_frameworks: ["phpunit"]
+      
+    ruby:
+      extensions: [".rb"]
+      comment_prefix: ["#"]
+      supports_ast: false
+      linters: ["rubocop"]
+      formatters: ["rufo"]
+      test_frameworks: ["rspec", "minitest"]
+      
+    swift:
+      extensions: [".swift"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["swiftlint"]
+      formatters: ["swiftformat"]
+      test_frameworks: ["xctest", "quick"]
+      
+    kotlin:
+      extensions: [".kt", ".kts"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["ktlint", "detekt"]
+      formatters: ["ktfmt"]
+      test_frameworks: ["junit", "kotest"]
+      
+    scala:
+      extensions: [".scala"]
+      comment_prefix: ["//", "/*"]
+      supports_ast: false
+      linters: ["scalastyle", "scapegoat"]
+      formatters: ["scalafmt"]
+      test_frameworks: ["scalatest", "specs2"]
+      
+    html:
+      extensions: [".html", ".htm"]
+      comment_prefix: ["<!--"]
+      supports_ast: false
+      linters: ["htmlhint", "tidy"]
+      formatters: ["prettier", "js-beautify"]
+      
+    css:
+      extensions: [".css", ".scss", ".sass", ".less"]
+      comment_prefix: ["/*", "//"]
+      supports_ast: false
+      linters: ["stylelint", "csslint"]
+      formatters: ["prettier", "csscomb"]
+```
+
+### LLM Provider Configuration
+
+Each LLM provider has specific configuration requirements:
+
+#### Ollama (Local Models)
+```yaml
+ollama:
   enabled: true
-  max_size: 5
-  ttl: 3600
+  config:
+    base_url: "http://localhost:11434"
+    default_model: "codellama"
+    timeout: 30
+    batch_size: 1
+    priority: 1
+    # Additional configuration
+    keep_alive: "5m"
+    num_thread: 4
+    num_gpu: 1
 ```
 
-## 🤝 Contributing
-
-### Development Workflow
-
-#### 1. Fork and Clone
-```bash
-# Fork the repository on GitHub
-git clone https://github.com/your-username/open_llm.git
-cd open_llm
-git remote add upstream https://github.com/bozozeclown/open_llm.git
+#### vLLM (High-Performance Inference)
+```yaml
+vllm:
+  enabled: true
+  config:
+    model: "codellama/CodeLlama-7b-hf"
+    tensor_parallel_size: 1
+    gpu_memory_utilization: 0.9
+    max_batch_size: 2048
+    priority: 0
+    # Additional configuration
+    swap_space: 4
+    max_num_batched_tokens: 8192
+    max_model_len: 4096
 ```
 
-#### 2. Set Up Development Environment
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-
-# Install pre-commit hooks
-pre-commit install
+#### HuggingFace Transformers
+```yaml
+huggingface:
+  enabled: true
+  config:
+    api_key: "${HF_API_KEY}"
+    model_name: "codellama/CodeLlama-7b-hf"
+    device: "auto"
+    quantize: false
+    batch_size: 2
+    priority: 3
+    # Additional configuration
+    trust_remote_code: true
+    load_in_8bit: false
+    load_in_4bit: false
+    device_map: "auto"
 ```
 
-#### 3. Create Feature Branch
-```bash
-# Create and switch to feature branch
-git checkout -b feature/amazing-feature
-
-# Or for bug fixes
-git checkout -b fix/issue-description
+#### Text Generation WebUI
+```yaml
+textgen:
+  enabled: true
+  config:
+    base_url: "http://localhost:5000"
+    api_key: "${TEXTGEN_API_KEY}"
+    batch_size: 4
+    timeout: 45
+    priority: 2
+    # Additional configuration
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    top_k: 50
 ```
 
-#### 4. Make Changes
+#### Grok AI
+```yaml
+grok:
+  enabled: true
+  config:
+    api_key: "${GROQ_API_KEY}"
+    rate_limit: 5
+    timeout: 15
+    priority: 4
+    # Additional configuration
+    model: "grok-beta"
+    max_tokens: 4096
+    temperature: 0.7
+    top_p: 0.9
+```
+
+#### LM Studio
+```yaml
+lmstudio:
+  enabled: true
+  config:
+    base_url: "http://localhost:1234"
+    timeout: 60
+    batch_support: false
+    priority: 5
+    # Additional configuration
+    model: "local-model"
+    max_tokens: 2048
+    temperature: 0.7
+    top_p: 0.9
+```
+
+## Usage Guide
+
+### CLI Interface
+
+The CLI provides powerful commands for interacting with the AI assistant:
+
+#### Query Command
 ```bash
-# Run tests before making changes
-pytest tests/
+# Basic query
+python -m cli.main query "How do I optimize this Python function?" --language python
 
-# Make your changes
-# Write tests for new functionality
-# Update documentation
+# Query with specific model
+python -m cli.main query "Explain this JavaScript code" --language javascript --model grok
 
-# Run tests again
-pytest tests/
-pytest --cov=core tests/
+# Query with custom timeout
+python -m cli.main query "Help me debug this C++ code" --language cpp --timeout 60
 
-# Check code style
+# Query with output formatting
+python -m cli.main query "How do I implement a binary search tree?" --language java --format json
+```
+
+#### Analyze Command
+```bash
+# Analyze a Python file for refactoring opportunities
+python -m cli.main analyze --file path/to/code.py --language python --type refactor
+
+# Analyze a JavaScript file for security issues
+python -m cli.main analyze --file path/to/app.js --language javascript --type security
+
+# Analyze a C# file for code quality
+python -m cli.main analyze --file path/to/program.cs --language csharp --type quality
+
+# Analyze multiple files
+python -m cli.main analyze --file path/to/file1.py --file path/to/file2.py --language python --type refactor
+
+# Analyze with custom output
+python -m cli.main analyze --file path/to/code.py --language python --type refactor --output detailed_report.json
+```
+
+#### Session Command
+```bash
+# Create a private collaboration session
+python -m cli.main session "My Session" --code "print('Hello World')" --language python
+
+# Create a public collaboration session
+python -m cli.main session "Public Session" --code "console.log('Hello')" --language javascript --public
+
+# Create a session with initial code from file
+python -m cli.main session "Refactoring Session" --file path/to/code.py --language python
+
+# Join an existing session
+python -m cli.main session join --session-id abc123 --user-name "John Doe"
+```
+
+#### Version Management
+```bash
+# Create a new knowledge graph version
+python -m cli.main version create --description "Added Python best practices" --author "John Doe"
+
+# Create a version with tags
+python -m cli.main version create --description "Security updates" --author "Security Team" --tags security,update
+
+# List all knowledge graph versions
+python -m cli.main version list
+
+# List versions with filtering
+python -m cli.main version list --author "John Doe" --tag security
+
+# Compare versions
+python -m cli.main version compare --version-id abc123 --version-id def456
+
+# Export a version
+python -m cli.main version export --version-id abc123 --format json --output version_export.json
+```
+
+### Web Interface
+
+Access the web interface at `http://localhost:8000` (default) to:
+
+#### 1. Dashboard
+- System status overview
+- Recent activity feed
+- Quick action buttons
+- Performance metrics
+- Resource utilization
+
+#### 2. Code Analysis
+- Upload files for analysis
+- Paste code directly
+- Select analysis type
+- Configure analysis parameters
+- View detailed results
+
+#### 3. Collaboration
+- Create new sessions
+- Join existing sessions
+- Manage session permissions
+- Chat with collaborators
+- View session history
+
+#### 4. Knowledge Graph
+- Browse knowledge graph
+- Search for specific topics
+- Visualize relationships
+- Manage versions
+- Export knowledge
+
+#### 5. Settings
+- Configure API keys
+- Manage LLM providers
+- Set user preferences
+- Configure notifications
+- Manage team settings
+
+### VS Code Extension
+
+The VS Code extension provides integrated AI assistance:
+
+#### 1. Installation
+- Install from the VS Code Marketplace
+- Or build from source:
+  ```bash
+  cd vscode-extension
+  npm install
+  npm run build
+  npm run package
+  ```
+
+#### 2. Configuration
+- Set API endpoint and key in extension settings
+- Configure preferred LLM providers
+- Set analysis preferences
+- Configure collaboration settings
+
+#### 3. Features
+- **Code Analysis**: Right-click on code to analyze
+- **Code Completion**: Automatic suggestions as you type
+- **Debugging Assistance**: Identify and resolve issues
+- **Collaboration**: Start or join sessions
+- **Knowledge Graph**: Access project knowledge
+
+#### 4. Commands
+- `AI Code Assistant: Analyze Current File`
+- `AI Code Assistant: Analyze Selection`
+- `AI Code Assistant: Generate Completion`
+- `AI Code Assistant: Debug Issue`
+- `AI Code Assistant: Start Collaboration Session`
+- `AI Code Assistant: Join Collaboration Session`
+
+### Mobile App
+
+The mobile app (React Native) provides on-the-go access:
+
+#### 1. Installation
+```bash
+cd mobile-app
+npm install
+
+# iOS
+npm run ios
+
+# Android
+npm run android
+```
+
+#### 2. Features
+- **Dashboard**: Overview of system status
+- **Analysis Results**: View analysis reports
+- **Collaboration**: Join and manage sessions
+- **Notifications**: Receive alerts and updates
+- **Settings**: Configure preferences
+
+#### 3. Navigation
+- Bottom navigation bar for main sections
+- Swipe gestures for navigation
+- Search functionality throughout
+- Offline mode for basic features
+
+## Project Structure
+
+The project follows a well-organized structure with clear separation of concerns:
+
+### Root Directory
+```
+ai-code-assistant/
+├── .env                    # Environment variables
+├── .env.example           # Environment variables template
+├── .gitignore             # Git ignore rules
+├── Dockerfile             # Docker configuration
+├── LICENSE                # MIT license
+├── package.json           # Node.js dependencies
+├── README.md              # Project documentation
+├── requirements.txt       # Python dependencies
+├── setup.py               # Python package setup
+└── webpack.config.js      # Webpack configuration
+```
+
+### CLI Module (`cli/`)
+The CLI module provides command-line interface functionality:
+
+```
+cli/
+├── __init__.py
+├── config.py              # CLI configuration management
+├── main.py                # CLI entry point
+├── commands/              # CLI command implementations
+│   ├── __init__.py
+│   ├── analyze.py         # Code analysis command
+│   ├── query.py           # Query command
+│   ├── session.py         # Collaboration session command
+│   └── version.py         # Version management command
+└── utils/                 # CLI utilities
+    ├── formatters.py      # Output formatting utilities
+    ├── helpers.py         # Helper functions
+    └── validators.py      # Input validation
+```
+
+#### CLI Configuration (`cli/config.py`)
+The CLI configuration module manages user-specific settings:
+- API endpoint and key configuration
+- Default language and model preferences
+- Timeout and retry settings
+- Output formatting preferences
+- Session management settings
+
+#### CLI Commands (`cli/commands/`)
+Each command implements a specific CLI functionality:
+
+**analyze.py**:
+- File-based code analysis
+- Support for multiple analysis types
+- Batch processing capabilities
+- Custom output formatting
+- Error handling and reporting
+
+**query.py**:
+- Direct querying of the AI assistant
+- Context-aware responses
+- Multi-language support
+- Provider selection
+- Response formatting
+
+**session.py**:
+- Collaboration session management
+- Session creation and joining
+- Code sharing capabilities
+- Permission management
+- Session history
+
+**version.py**:
+- Knowledge graph version management
+- Version creation and listing
+- Version comparison
+- Export functionality
+- Tagging and metadata
+
+#### CLI Utilities (`cli/utils/`)
+Utility modules provide common functionality:
+
+**formatters.py**:
+- Output formatting for different formats (JSON, YAML, text)
+- Analysis result formatting
+- Session information formatting
+- Version list formatting
+- Error and success message formatting
+
+**helpers.py**:
+- Configuration file management
+- File language detection
+- Text processing utilities
+- Directory management
+- User interaction helpers
+
+**validators.py**:
+- Input validation for all CLI commands
+- File path validation
+- Language validation
+- Analysis type validation
+- API configuration validation
+
+### Configuration Files (`configs/`)
+Centralized configuration management:
+
+```
+configs/
+├── base.yaml              # Base project configuration
+├── database.yaml          # Database and Redis settings
+├── integration.yaml       # LLM provider integrations
+├── languages.yaml        # Language support settings
+├── model.yaml            # Model configuration
+├── predictions.yaml      # Prediction settings
+├── quality_standards.yaml # Quality standards
+├── security.yaml         # Security settings
+└── sla_tiers.yaml        # Service level agreements
+```
+
+#### Base Configuration (`configs/base.yaml`)
+Defines project-wide settings:
+- Project metadata
+- File paths and directories
+- Language configuration references
+- Security configuration references
+- Database configuration references
+- Integration configuration references
+- Model configuration references
+- API settings
+- Logging configuration
+
+#### Database Configuration (`configs/database.yaml`)
+Manages database and Redis settings:
+- Environment-specific configurations
+- Connection pooling settings
+- Migration settings
+- Backup settings
+- Monitoring settings
+- Performance optimization settings
+
+#### Integration Configuration (`configs/integration.yaml`)
+Configures LLM provider integrations:
+- Provider-specific settings
+- Global integration settings
+- Batch processing settings
+- Health check settings
+- Load balancing settings
+- Routing rules
+- Provider capabilities
+
+#### Language Configuration (`configs/languages.yaml`)
+Defines programming language support:
+- Language priority order
+- Language-specific settings
+- File extensions
+- Shebang patterns
+- Comment prefixes
+- AST support flags
+- Linter and formatter configurations
+- Test framework configurations
+
+### Core Module (`core/`)
+The core module contains the main application logic:
+
+```
+core/
+├── __init__.py
+├── analysis.py            # Main analysis engine
+├── completion.py          # Code completion engine
+├── config_loader.py       # Configuration loading
+├── context.py             # Context management
+├── debugger.py            # Debugging functionality
+├── health.py              # Health checks
+├── interface.py           # API interface
+├── orchestrator.py        # Request orchestration
+├── plugin.py              # Plugin system
+├── self_healing.py        # Self-healing mechanisms
+├── service.py             # Main service entry point
+├── signature_help.py      # Signature help
+├── state_manager.py       # State management
+├── validation.py          # Validation utilities
+├── analysis/              # Analysis submodules
+│   ├── __init__.py
+│   └── advanced_analyzer.py
+├── analytics/             # Analytics and monitoring
+│   └── dashboard.py
+├── collaboration/         # Collaboration features
+│   └── session_manager.py
+├── completion/            # Code completion
+│   └── intelligent_completer.py
+├── database/              # Database management
+│   └── optimized_manager.py
+├── enterprise/            # Enterprise features
+│   ├── audit/             # Audit logging
+│   ├── auth/              # Authentication
+│   └── teams/             # Team management
+├── errors/                # Error handling
+│   └── handlers.py
+├── feedback/              # Feedback processing
+│   └── processor.py
+├── integrations/          # LLM provider integrations
+│   ├── __init__.py
+│   ├── grok.py            # Grok integration
+│   ├── huggingface.py     # HuggingFace integration
+│   ├── lmstudio.py        # LM Studio integration
+│   ├── manager.py         # Integration manager
+│   ├── ollama.py          # Ollama integration
+│   ├── textgen.py         # TextGen integration
+│   └── vllm.py            # vLLM integration
+├── ml/                    # Machine learning components
+│   └── model_manager.py
+├── monitoring/            # System monitoring
+│   └── service.py
+├── multimodal/            # Multimodal capabilities
+│   └── image_analyser.py
+├── offline/               # Offline capabilities
+│   └── init.py
+├── orchestration/         # Request orchestration
+│   ├── budget_router.py   # Budget-based routing
+│   ├── load_balancer.py   # Load balancing
+│   └── sla_router.py      # SLA-based routing
+├── performance/           # Performance optimization
+│   ├── cost.py            # Cost tracking
+│   ├── hashing.py         # Hashing utilities
+│   ├── optimisation.py    # Optimization algorithms
+│   └── tracker.py         # Performance tracking
+├── personalization/       # Personalization features
+│   └── user_profile.py
+├── prediction/            # Prediction capabilities
+│   ├── cache.py           # Prediction caching
+│   └── warmer.py          # Cache warming
+├── processing/            # Request processing
+│   └── batcher.py         # Request batching
+├── reasoning/             # Reasoning engine
+│   ├── engine.py          # Main reasoning engine
+│   └── rules.py           # Reasoning rules
+├── refactoring/           # Refactoring engine
+│   └── refactor_engine.py
+├── security/              # Security components
+│   ├── auth.py            # Authentication
+│   └── rate_limiter.py    # Rate limiting
+├── self_learning/         # Self-learning capabilities
+│   ├── engine.py          # Learning engine
+│   └── rule_applier.py    # Rule application
+├── testing/               # Testing utilities
+│   └── test_generator.py
+├── ux/                    # User experience enhancements
+│   └── enhanced_error_handler.py
+├── validation/            # Validation components
+│   └── quality_gates.py
+├── versioning/            # Version management
+│   └── init.py
+└── voice/                 # Voice capabilities
+    └── init.py
+```
+
+#### Core Services
+The core module contains the main application services:
+
+**analysis.py**: Main analysis engine that coordinates code analysis across different languages and analysis types.
+**completion.py**: Code completion engine that generates context-aware suggestions.
+**config_loader.py**: Loads and manages configuration from various sources.
+**context.py**: Manages context for code analysis and completion.
+**debugger.py**: Provides debugging capabilities for code analysis.
+**health.py**: Implements health checks for system components.
+**interface.py**: Defines the API interface for external integrations.
+**orchestrator.py**: Orchestrates requests between different components.
+**plugin.py**: Manages plugin system for extensibility.
+**self_healing.py**: Implements self-healing mechanisms for system resilience.
+**service.py**: Main service entry point that initializes and starts the application.
+**signature_help.py**: Provides signature help for function and method calls.
+**state_manager.py**: Manages application state and persistence.
+**validation.py**: Provides validation utilities for inputs and outputs.
+
+#### Analysis Submodule (`core/analysis/`)
+Contains advanced analysis capabilities:
+**advanced_analyzer.py**: Implements sophisticated code analysis algorithms with support for multiple languages and analysis types.
+
+#### Analytics Submodule (`core/analytics/`)
+Provides analytics and monitoring capabilities:
+**dashboard.py**: Generates analytics dashboards and reports.
+
+#### Collaboration Submodule (`core/collaboration/`)
+Manages collaboration features:
+**session_manager.py**: Handles creation, management, and synchronization of collaboration sessions.
+
+#### Completion Submodule (`core/completion/`)
+Implements code completion functionality:
+**intelligent_completer.py**: Provides intelligent code completions based on context.
+
+#### Database Submodule (`core/database/`)
+Manages database operations:
+**optimized_manager.py**: Implements optimized database operations with connection pooling and caching.
+
+#### Enterprise Submodule (`core/enterprise/`)
+Contains enterprise-specific features:
+**audit/**: Audit logging functionality.
+**auth/**: Authentication and authorization.
+**teams/**: Team management capabilities.
+
+#### Errors Submodule (`core/errors/`)
+Handles error management:
+**handlers.py**: Implements error handling and recovery mechanisms.
+
+#### Feedback Submodule (`core/feedback/`)
+Processes user feedback:
+**processor.py**: Analyzes and processes user feedback for system improvement.
+
+#### Integrations Submodule (`core/integrations/`)
+Manages LLM provider integrations:
+**grok.py**: Integration with Grok AI.
+**huggingface.py**: Integration with HuggingFace Transformers.
+**lmstudio.py**: Integration with LM Studio.
+**manager.py**: Manages all provider integrations.
+**ollama.py**: Integration with Ollama.
+**textgen.py**: Integration with Text Generation WebUI.
+**vllm.py**: Integration with vLLM.
+
+#### ML Submodule (`core/ml/`)
+Contains machine learning components:
+**model_manager.py**: Manages machine learning models and inference.
+
+#### Monitoring Submodule (`core/monitoring/`)
+Provides system monitoring:
+**service.py**: Implements monitoring services for system health and performance.
+
+#### Multimodal Submodule (`core/multimodal/`)
+Handles multimodal capabilities:
+**image_analyser.py**: Analyzes images for code and diagram recognition.
+
+#### Offline Submodule (`core/offline/`)
+Provides offline capabilities:
+**init.py**: Initializes offline functionality.
+
+#### Orchestration Submodule (`core/orchestration/`)
+Manages request orchestration:
+**budget_router.py**: Routes requests based on budget constraints.
+**load_balancer.py**: Implements load balancing across providers.
+**sla_router.py**: Routes requests based on SLA requirements.
+
+#### Performance Submodule (`core/performance/`)
+Optimizes system performance:
+**cost.py**: Tracks and manages costs.
+**hashing.py**: Provides hashing utilities for caching.
+**optimisation.py**: Implements performance optimization algorithms.
+**tracker.py**: Tracks performance metrics.
+
+#### Personalization Submodule (`core/personalization/`)
+Manages personalization features:
+**user_profile.py**: Handles user profiles and preferences.
+
+#### Prediction Submodule (`core/prediction/`)
+Provides prediction capabilities:
+**cache.py**: Manages prediction caching.
+**warmer.py**: Implements cache warming for performance.
+
+#### Processing Submodule (`core/processing/`)
+Handles request processing:
+**batcher.py**: Implements request batching for efficiency.
+
+#### Reasoning Submodule (`core/reasoning/`)
+Implements reasoning capabilities:
+**engine.py**: Main reasoning engine.
+**rules.py**: Defines reasoning rules.
+
+#### Refactoring Submodule (`core/refactoring/`)
+Provides refactoring capabilities:
+**refactor_engine.py**: Implements refactoring algorithms.
+
+#### Security Submodule (`core/security/`)
+Manages security features:
+**auth.py**: Authentication and authorization.
+**rate_limiter.py**: Rate limiting implementation.
+
+#### Self-Learning Submodule (`core/self_learning/`)
+Implements self-learning capabilities:
+**engine.py**: Learning engine for system improvement.
+**rule_applier.py**: Applies learned rules.
+
+#### Testing Submodule (`core/testing/`)
+Provides testing utilities:
+**test_generator.py**: Generates test cases.
+
+#### UX Submodule (`core/ux/`)
+Enhances user experience:
+**enhanced_error_handler.py**: Provides improved error messages and handling.
+
+#### Validation Submodule (`core/validation/`)
+Implements validation components:
+**quality_gates.py**: Defines quality gates for code validation.
+
+#### Versioning Submodule (`core/versioning/`)
+Manages versioning:
+**init.py**: Initializes versioning functionality.
+
+#### Voice Submodule (`core/voice/`)
+Provides voice capabilities:
+**init.py**: Initializes voice functionality.
+
+### Data Storage (`data/`)
+```
+data/
+├── processed/             # Processed data files
+└── raw/                   # Raw data files
+```
+
+### Deployment (`deploy/`)
+```
+deploy/
+├── docker/                # Docker deployment
+│   ├── docker-compose.yml
+│   └── Dockerfile
+└── enterprise/            # Enterprise deployment
+    ├── docker-compose.enterprise.yml
+    └── Dockerfile.enterprise
+```
+
+### Documentation (`docs/`)
+```
+docs/
+├── DEVELOPER_GUIDE.md     # Developer guide
+├── INSTALLATION.md        # Installation instructions
+├── README.md              # Documentation overview
+└── TROUBLESHOOTING.md     # Troubleshooting guide
+```
+
+### Mobile Application (`mobile-app/`)
+```
+mobile-app/
+├── package.json           # Node.js dependencies
+└── src/                   # Source code
+    ├── screens/           # App screens
+    │   └── HomeScreen.js
+    └── services/          # API services
+        └── ApiService.js
+```
+
+### Modules (`modules/`)
+```
+modules/
+├── base_module.py         # Base module implementation
+├── module_ai.py           # AI functionality module
+├── module_completion.py   # Code completion module
+├── module_debug.py        # Debugging module
+├── module_generic.py      # Generic functionality module
+├── module_python.py       # Python-specific module
+├── module_signature.py    # Signature help module
+└── registry.py            # Module registry
+```
+
+### Monitoring (`monitoring/`)
+```
+monitoring/
+├── alert_rules.yml        # Alert rules
+├── dashboard.json         # Grafana dashboard
+└── prometheus.yml         # Prometheus configuration
+```
+
+### Scripts (`scripts/`)
+```
+scripts/
+└── validate_system.py     # System validation script
+```
+
+### Shared Components (`shared/`)
+```
+shared/
+├── schemas.py             # Shared schemas
+├── config/                # Configuration utilities
+│   ├── init.py
+│   ├── loader.py
+│   └── manager.py
+├── knowledge/             # Knowledge graph
+│   └── graph.py
+└── schemas/               # Schema definitions
+    ├── collaboration.py   # Collaboration schemas
+    ├── query.py           # Query schemas
+    └── response.py        # Response schemas
+```
+
+### Static Assets (`static/`)
+```
+static/
+├── css/                   # CSS files
+│   ├── debugger.css
+│   ├── graph.css
+│   └── signature.css
+├── dist/                  # Compiled assets
+├── js/                    # JavaScript files
+│   ├── completion.js
+│   ├── debugger.js
+│   ├── graph-explorer.js
+│   └── signature.js
+├── scss/                  # SCSS source files
+└── ts/                    # TypeScript source files
+```
+
+### Templates (`templates/`)
+```
+templates/
+└── index.html             # Main HTML template
+```
+
+### Tests (`tests/`)
+```
+tests/
+├── conftest.py            # Test configuration
+├── test_basic_functionality.py
+├── integration/           # Integration tests
+│   └── test_multimodal.py
+└── performance/           # Performance tests
+    └── test_performance.py
+```
+
+### VS Code Extension (`vscode-extension/`)
+```
+vscode-extension/
+├── package.json           # Extension manifest
+└── src/                   # Source code
+    └── extension.ts       # Main extension file
+```
+
+## Development Workflow
+
+### Setting Up Development Environment
+
+1. **Fork and Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/ai-code-assistant.git
+   cd ai-code-assistant
+   ```
+
+2. **Create Virtual Environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
+   ```
+
+3. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   pip install pytest pytest-asyncio pytest-cov httpx black flake8 mypy bandit pre-commit
+   ```
+
+4. **Set Up Pre-commit Hooks**
+   ```bash
+   pre-commit install
+   ```
+
+5. **Install Frontend Dependencies**
+   ```bash
+   cd static
+   npm install
+   cd ../vscode-extension
+   npm install
+   cd ../mobile-app
+   npm install
+   ```
+
+6. **Set Up Database**
+   ```bash
+   # Ensure PostgreSQL and Redis are running
+   sudo systemctl start postgresql
+   sudo systemctl start redis-server
+   
+   # Create database
+   sudo -u postgres createdb openllm
+   sudo -u postgres createuser user
+   
+   # Run migrations
+   python -m alembic upgrade head
+   ```
+
+7. **Install spaCy Model**
+   ```bash
+   python -m spacy download en_core_web_sm
+   ```
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ -v --cov=core --cov-report=xml --cov-report=term-missing
+
+# Run specific test categories
+pytest tests/integration/
+pytest tests/performance/
+
+# Run specific test file
+pytest tests/test_basic_functionality.py -v
+
+# Run tests with specific marker
+pytest tests/ -v -m "slow"
+
+# Run tests with parallel execution
+pytest tests/ -n auto
+```
+
+### Code Quality Checks
+
+```bash
+# Format code
 black .
+
+# Lint code
 flake8 .
-mypy core/
+
+# Type checking
+mypy core/ shared/ modules/
+
+# Security scan
+bandit -r core/
+
+# Import sorting
+isort .
+
+# Docstring coverage
+interrogate core/
 ```
 
-#### 5. Commit Changes
+### Building and Deployment
+
+1. **Building the Application**
+   ```bash
+   # Build Python package
+   python setup.py sdist bdist_wheel
+   
+   # Build frontend assets
+   cd static
+   npm run build
+   
+   # Build VS Code extension
+   cd ../vscode-extension
+   npm run build
+   npm run package
+   
+   # Build mobile app
+   cd ../mobile-app
+   npm run build:ios  # or npm run build:android
+   ```
+
+2. **Docker Build**
+   ```bash
+   # Build standard Docker image
+   docker build -t ai-code-assistant:latest .
+   
+   # Build enterprise Docker image
+   docker build -f deploy/enterprise/Dockerfile.enterprise -t ai-code-assistant:enterprise .
+   ```
+
+3. **Kubernetes Deployment**
+   ```bash
+   # Deploy to Kubernetes
+   kubectl apply -f deploy/k8s/
+   
+   # Deploy enterprise version
+   kubectl apply -f deploy/k8s/enterprise/
+   
+   # Check deployment status
+   kubectl get pods -n ai-code-assistant
+   ```
+
+### Development Guidelines
+
+1. **Code Style**
+   - Follow PEP 8 guidelines
+   - Use Black for code formatting
+   - Use type hints where appropriate
+   - Write comprehensive docstrings
+
+2. **Testing**
+   - Write tests for all new functionality
+   - Maintain test coverage above 80%
+   - Use pytest for testing
+   - Write both unit and integration tests
+
+3. **Documentation**
+   - Update README.md for significant changes
+   - Add docstrings to all functions and classes
+   - Update API documentation for new endpoints
+   - Document configuration changes
+
+4. **Version Control**
+   - Use semantic versioning
+   - Create feature branches for new work
+   - Keep pull requests focused and small
+   - Ensure all tests pass before merging
+
+## API Documentation
+
+### Authentication
+
+The API uses Bearer token authentication. Include your API key in the Authorization header:
+
+```
+Authorization: Bearer your_api_key
+```
+
+### Endpoints
+
+#### Process Request
+```
+POST /process
+```
+
+Process a query or code analysis request.
+
+**Request Body:**
+```json
+{
+  "content": "Your query or code",
+  "context": {
+    "code": "optional code context",
+    "language": "python",
+    "file_path": "path/to/file.py",
+    "analysis_type": "refactor"
+  },
+  "metadata": {
+    "source": "cli",
+    "analysis_type": "refactor",
+    "user_id": "optional_user_id",
+    "session_id": "optional_session_id"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "content": "AI response content",
+  "metadata": {
+    "processing": {
+      "provider": "ollama",
+      "sla_tier": "standard",
+      "duration": 1.23,
+      "cost": 0.001
+    },
+    "suggestions": [
+      "Suggestion 1",
+      "Suggestion 2"
+    ],
+    "metrics": {
+      "complexity": "medium",
+      "maintainability": "high",
+      "security_score": 85
+    },
+    "references": [
+      {
+        "file": "path/to/file.py",
+        "line": 42,
+        "type": "function"
+      }
+    ]
+  }
+}
+```
+
+#### Collaboration Sessions
+```
+POST /collaboration/sessions
+```
+
+Create a new collaboration session.
+
+**Request Body:**
+```json
+{
+  "name": "Session Name",
+  "code": "Initial code",
+  "language": "python",
+  "is_public": false,
+  "description": "Optional description"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "session_id",
+  "name": "Session Name",
+  "share_url": "http://localhost:8000/collaboration/session/session_id",
+  "is_public": false,
+  "created_at": "2023-01-01T00:00:00Z",
+  "owner_id": "user_id",
+  "description": "Optional description",
+  "participants": ["user_id"]
+}
+```
+
+#### Join Collaboration Session
+```
+POST /collaboration/sessions/{session_id}/join
+```
+
+Join an existing collaboration session.
+
+**Request Body:**
+```json
+{
+  "user_name": "John Doe",
+  "user_id": "optional_user_id"
+}
+```
+
+**Response:**
+```json
+{
+  "session_id": "session_id",
+  "status": "joined",
+  "participants": ["user_id", "new_user_id"],
+  "code": "Current code in session",
+  "messages": []
+}
+```
+
+#### Knowledge Graph Versions
+```
+GET /versions
+```
+
+List all knowledge graph versions.
+
+**Response:**
+```json
+{
+  "versions": [
+    {
+      "version_id": "version_id",
+      "description": "Version description",
+      "author": "author_name",
+      "timestamp": "2023-01-01T00:00:00Z",
+      "tags": ["tag1", "tag2"],
+      "metrics": {
+        "nodes": 1000,
+        "edges": 2500,
+        "coverage": 0.85
+      }
+    }
+  ]
+}
+```
+
+#### Create Knowledge Graph Version
+```
+POST /versions
+```
+
+Create a new knowledge graph version.
+
+**Request Body:**
+```json
+{
+  "description": "Version description",
+  "author": "author_name",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+**Response:**
+```json
+{
+  "version_id": "version_id",
+  "description": "Version description",
+  "author": "author_name",
+  "timestamp": "2023-01-01T00:00:00Z",
+  "tags": ["tag1", "tag2"],
+  "status": "created"
+}
+```
+
+#### Health Check
+```
+GET /health
+```
+
+Check system health status.
+
+**Response:**
+```json
+{
+  "status": "healthy",
+  "components": {
+    "database": "operational",
+    "redis": "operational",
+    "llm_providers": {
+      "ollama": "operational",
+      "vllm": "degraded",
+      "grok": "operational"
+    }
+  },
+  "timestamp": "2023-01-01T00:00:00Z",
+  "uptime": 86400
+}
+```
+
+#### User Profile
+```
+GET /user/profile
+```
+
+Get user profile information.
+
+**Response:**
+```json
+{
+  "user_id": "user_id",
+  "username": "username",
+  "email": "user@example.com",
+  "preferences": {
+    "default_language": "python",
+    "default_model": "codellama",
+    "theme": "dark"
+  },
+  "usage_stats": {
+    "requests_count": 100,
+    "sessions_created": 5,
+    "last_active": "2023-01-01T00:00:00Z"
+  }
+}
+```
+
+#### Update User Profile
+```
+PUT /user/profile
+```
+
+Update user profile information.
+
+**Request Body:**
+```json
+{
+  "preferences": {
+    "default_language": "python",
+    "default_model": "codellama",
+    "theme": "dark"
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "status": "updated",
+  "user_id": "user_id",
+  "preferences": {
+    "default_language": "python",
+    "default_model": "codellama",
+    "theme": "dark"
+  }
+}
+```
+
+#### System Statistics
+```
+GET /stats
+```
+
+Get system usage statistics.
+
+**Response:**
+```json
+{
+  "total_requests": 10000,
+  "active_users": 100,
+  "active_sessions": 20,
+  "provider_stats": {
+    "ollama": {
+      "requests": 5000,
+      "avg_response_time": 1.2,
+      "error_rate": 0.01
+    },
+    "vllm": {
+      "requests": 3000,
+      "avg_response_time": 0.8,
+      "error_rate": 0.02
+    }
+  },
+  "language_stats": {
+    "python": 0.6,
+    "javascript": 0.2,
+    "other": 0.2
+  }
+}
+```
+
+## Testing
+
+### Test Structure
+
+The project uses pytest for testing with the following structure:
+
+```
+tests/
+├── conftest.py            # Test configuration and fixtures
+├── test_basic_functionality.py
+├── integration/           # Integration tests
+│   └── test_multimodal.py
+└── performance/           # Performance tests
+    └── test_performance.py
+```
+
+### Running Tests
+
 ```bash
-# Stage changes
-git add .
+# Run all tests
+pytest tests/ -v
 
-# Commit with descriptive message
-git commit -m "Add amazing feature: solves #123
+# Run with coverage
+pytest tests/ -v --cov=core --cov-report=xml --cov-report=term-missing
 
-- Implement new functionality
-- Add comprehensive tests
-- Update documentation"
+# Run specific test categories
+pytest tests/integration/
+pytest tests/performance/
 
-# Push to your fork
+# Run specific test file
+pytest tests/test_basic_functionality.py -v
+
+# Run tests with specific marker
+pytest tests/ -v -m "slow"
+
+# Run tests with parallel execution
+pytest tests/ -n auto
+```
+
+### Test Fixtures
+
+Key fixtures defined in `conftest.py`:
+
+```python
+@pytest.fixture
+def test_client():
+    """Create a test client for the API."""
+    app = create_app()
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
+
+@pytest.fixture
+def sample_code():
+    """Sample code for testing."""
+    return """
+def factorial(n):
+    if n == 0:
+        return 1
+    else:
+        return n * factorial(n-1)
+"""
+
+@pytest.fixture
+def mock_llm_response():
+    """Mock LLM response for testing."""
+    return {
+        "content": "This is a mock response",
+        "metadata": {
+            "provider": "mock",
+            "duration": 0.5
+        }
+    }
+```
+
+### Test Categories
+
+1. **Unit Tests**: Test individual components in isolation
+2. **Integration Tests**: Test interactions between components
+3. **Performance Tests**: Test system performance under load
+4. **End-to-End Tests**: Test complete user workflows
+
+### Test Coverage
+
+The project maintains high test coverage:
+- Minimum 80% code coverage
+- Critical paths have 95%+ coverage
+- All new features must include tests
+- Coverage is verified in CI pipeline
+
+## Deployment
+
+### Docker Deployment
+
+1. **Standard Docker Setup**
+   ```bash
+   cd deploy/docker
+   docker-compose up -d
+   ```
+
+2. **Enterprise Docker Setup**
+   ```bash
+   cd deploy/enterprise
+   docker-compose -f docker-compose.enterprise.yml up -d
+   ```
+
+3. **Custom Docker Build**
+   ```bash
+   # Build custom image
+   docker build -t ai-code-assistant:custom .
+
+   # Run with custom configuration
+   docker run -d \
+     --name ai-code-assistant \
+     -p 8000:8000 \
+     -v $(pwd)/configs:/app/configs \
+     -v $(pwd)/data:/app/data \
+     ai-code-assistant:custom
+   ```
+
+### Kubernetes Deployment
+
+1. **Standard Deployment**
+   ```bash
+   kubectl apply -f deploy/k8s/
+   ```
+
+2. **Enterprise Deployment**
+   ```bash
+   kubectl apply -f deploy/k8s/enterprise/
+   ```
+
+3. **Custom Namespace**
+   ```bash
+   kubectl apply -f deploy/k8s/namespace.yaml
+   kubectl config set-context --current --namespace=ai-code-assistant
+   ```
+
+4. **Monitoring Setup**
+   ```bash
+   kubectl apply -f deploy/k8s/monitoring/
+   ```
+
+### Traditional Server Deployment
+
+1. **System Requirements**
+   - Ubuntu 20.04 LTS or equivalent
+   - 8GB RAM minimum (16GB recommended)
+   - 4 CPU cores minimum
+   - 50GB disk space
+
+2. **Installation Steps**
+   ```bash
+   # Install dependencies
+   sudo apt-get update
+   sudo apt-get install postgresql redis-server nginx python3 python3-pip nodejs npm
+   
+   # Create database
+   sudo -u postgres createdb openllm
+   sudo -u postgres createuser user
+   
+   # Install application
+   pip3 install -r requirements.txt
+   python3 setup.py install
+   
+   # Configure and start services
+   sudo systemctl start postgresql
+   sudo systemctl start redis-server
+   sudo systemctl enable ai-code-assistant
+   sudo systemctl start ai-code-assistant
+   
+   # Configure nginx
+   sudo cp deploy/nginx.conf /etc/nginx/sites-available/ai-code-assistant
+   sudo ln -s /etc/nginx/sites-available/ai-code-assistant /etc/nginx/sites-enabled/
+   sudo systemctl restart nginx
+   ```
+
+### Cloud Deployment
+
+1. **AWS Deployment**
+   ```bash
+   cd deploy/cloud/aws
+   ./deploy.sh
+   ```
+
+2. **GCP Deployment**
+   ```bash
+   cd deploy/cloud/gcp
+   ./deploy.sh
+   ```
+
+3. **Azure Deployment**
+   ```bash
+   cd deploy/cloud/azure
+   ./deploy.sh
+   ```
+
+### Production Configuration
+
+1. **Environment Variables**
+   ```bash
+   ENVIRONMENT=production
+   DEBUG=false
+   LOG_LEVEL=WARNING
+   DB_HOST=production-db.example.com
+   DB_NAME=openllm_prod
+   DB_USER=prod_user
+   DB_PASSWORD=secure_password
+   REDIS_HOST=production-redis.example.com
+   SECRET_KEY=production_secret_key
+   JWT_SECRET=production_jwt_secret
+   SSL_CERT_FILE=/etc/ssl/certs/ai-code-assistant.crt
+   SSL_KEY_FILE=/etc/ssl/private/ai-code-assistant.key
+   ```
+
+2. **Database Configuration**
+   - Use connection pooling
+   - Enable SSL connections
+   - Set up read replicas for high load
+   - Configure regular backups
+
+3. **Security Configuration**
+   - Enable SSL/TLS
+   - Configure firewall rules
+   - Set up rate limiting
+   - Enable audit logging
+
+4. **Monitoring Configuration**
+   - Set up Prometheus and Grafana
+   - Configure alerting rules
+   - Set up log aggregation
+   - Configure health checks
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Database Connection Issues**
+   - **Symptoms**: Application fails to start with database connection errors
+   - **Solutions**:
+     - Ensure PostgreSQL is running: `sudo systemctl status postgresql`
+     - Verify database credentials in `.env`
+     - Check database exists: `sudo -u postgres psql -l`
+     - Verify network connectivity: `telnet localhost 5432`
+     - Check SSL configuration: `openssl s_client -connect localhost:5432`
+
+2. **LLM Provider Issues**
+   - **Symptoms**: API requests to LLM providers fail
+   - **Solutions**:
+     - Verify API keys are correctly set in `.env`
+     - Check provider service status
+     - Review rate limits and quotas
+     - Test provider connectivity: `curl -X GET provider_url`
+     - Check provider logs for error messages
+
+3. **Performance Issues**
+   - **Symptoms**: Slow response times, high resource usage
+   - **Solutions**:
+     - Monitor system resources: `htop`, `df -h`
+     - Check database query performance: `EXPLAIN ANALYZE query`
+     - Review LLM provider response times
+     - Consider scaling resources horizontally
+     - Optimize configuration parameters
+
+4. **Memory Issues**
+   - **Symptoms**: Out-of-memory errors, system crashes
+   - **Solutions**:
+     - Increase system memory or add swap space: `sudo fallocate -l 4G /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`
+     - Reduce batch sizes in configuration
+     - Optimize model loading and caching
+     - Monitor memory usage: `free -h`, `vmstat`
+     - Consider using memory-efficient models
+
+5. **SSL/TLS Issues**
+   - **Symptoms**: Certificate errors, insecure connection warnings
+   - **Solutions**:
+     - Verify certificate files exist and are valid
+     - Check certificate expiration: `openssl x509 -in cert.pem -noout -dates`
+     - Verify certificate chain is complete
+     - Check SSL configuration in web server
+     - Test SSL connection: `openssl s_client -connect localhost:443`
+
+### Debug Mode
+
+Enable debug mode for detailed error information:
+
+```bash
+DEBUG=true python -m core.service
+```
+
+### Performance Optimization
+
+1. **Database Optimization**
+   - Use connection pooling
+   - Optimize slow queries with indexes
+   - Consider read replicas for high load
+   - Enable query caching
+   - Regularly vacuum and analyze tables
+
+2. **LLM Provider Optimization**
+   - Configure appropriate timeouts
+   - Use batching for multiple requests
+   - Implement caching for repeated queries
+   - Use model quantization for resource efficiency
+   - Consider GPU acceleration
+
+3. **System Optimization**
+   - Monitor resource usage
+   - Scale horizontally if needed
+   - Use load balancing for high traffic
+   - Implement caching strategies
+   - Optimize network configuration
+
+### Log Analysis
+
+Key log files to check:
+
+```
+logs/
+├── app.log                # Application logs
+├── error.log              # Error logs
+├── access.log             # Access logs
+├── performance.log        # Performance logs
+└── security.log           # Security logs
+```
+
+Use log analysis tools:
+```bash
+# View recent application logs
+tail -f logs/app.log
+
+# Search for errors in error logs
+grep "ERROR" logs/error.log
+
+# Analyze performance logs
+awk '{print $7}' logs/performance.log | sort -n
+
+# Monitor security events
+grep "SECURITY" logs/security.log
+```
+
+## Contributing
+
+We welcome contributions! Please follow these guidelines:
+
+### 1. Fork the Repository
+```bash
+git clone https://github.com/yourusername/ai-code-assistant.git
+```
+
+### 2. Create a Feature Branch
+```bash
+git checkout -b feature/amazing-feature
+```
+
+### 3. Make Your Changes
+- Follow the existing code style
+- Add tests for new functionality
+- Update documentation as needed
+- Ensure all tests pass
+
+### 4. Commit Your Changes
+```bash
+git commit -m 'Add amazing feature'
+```
+
+### 5. Push to the Branch
+```bash
 git push origin feature/amazing-feature
 ```
 
-#### 6. Create Pull Request
-```bash
-# Create pull request on GitHub
-# Ensure:
-# - Tests pass
-# - Code follows style guidelines
-# - Documentation is updated
-# - PR description is clear
-```
+### 6. Open a Pull Request
+- Provide a clear description of your changes
+- Link to any relevant issues
+- Ensure all tests pass
+- Wait for code review
 
-### Code Style Guidelines
+### Development Guidelines
 
-#### Python Code Style
-```python
-# Follow PEP 8
-# Use type hints
-from typing import Dict, List, Optional
+1. **Code Style**
+   - Follow PEP 8 guidelines
+   - Use Black for code formatting
+   - Use type hints where appropriate
+   - Write comprehensive docstrings
 
-def process_data(
-    data: Dict[str, Any],
-    config: Optional[Dict[str, Any]] = None
-) -> List[str]:
-    """Process input data and return results.
-    
-    Args:
-        data: Input data dictionary
-        config: Optional configuration dictionary
-    
-    Returns:
-        List of processed results
-    """
-    if config is None:
-        config = {}
-    
-    # Process data
-    results = []
-    for key, value in data.items():
-        processed = _process_item(key, value, config)
-        results.append(processed)
-    
-    return results
-```
+2. **Testing**
+   - Write tests for all new functionality
+   - Maintain test coverage above 80%
+   - Use pytest for testing
+   - Write both unit and integration tests
 
-#### Documentation Standards
-```python
-# Use comprehensive docstrings
-def complex_function(param1: str, param2: int) -> bool:
-    """Perform complex operation on parameters.
-    
-    This function does something complex that requires detailed explanation.
-    It handles edge cases and provides meaningful return values.
-    
-    Args:
-        param1: String parameter that describes something
-        param2: Integer parameter for counting
-    
-    Returns:
-        Boolean indicating success or failure
-    
-    Raises:
-        ValueError: If parameters are invalid
-        RuntimeError: If operation fails
-        
-    Example:
-        >>> complex_function("test", 5)
-        True
-    """
-    if not param1 or param2 <= 0:
-        raise ValueError("Invalid parameters")
-    
-    try:
-        # Complex logic here
-        return True
-    except Exception as e:
-        raise RuntimeError(f"Operation failed: {e}")
-```
+3. **Documentation**
+   - Update README.md for significant changes
+   - Add docstrings to all functions and classes
+   - Update API documentation for new endpoints
+   - Document configuration changes
 
-### Testing Guidelines
+4. **Version Control**
+   - Use semantic versioning
+   - Create feature branches for new work
+   - Keep pull requests focused and small
+   - Ensure all tests pass before merging
 
-#### Unit Tests
-```python
-# Test individual components
-import pytest
-from unittest.mock import Mock, patch
-from core.module import MyModule
+### Code of Conduct
 
-@pytest.fixture
-def my_module():
-    return MyModule()
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to ensure a welcoming and inclusive environment for all contributors.
 
-def test_module_functionality(my_module):
-    """Test that module works correctly"""
-    result = my_module.process("input")
-    assert result == "expected_output"
-
-def test_module_error_handling(my_module):
-    """Test error handling"""
-    with pytest.raises(ValueError):
-        my_module.process(None)
-```
-
-#### Integration Tests
-```python
-# Test component interactions
-import pytest
-import httpx
-from core.service import AIService
-
-@pytest.mark.asyncio
-async def test_api_integration():
-    """Test API endpoint integration"""
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "http://localhost:8000/process",
-            json={"content": "test query"}
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert "content" in data
-```
-
-#### Performance Tests
-```python
-# Test performance characteristics
-import pytest
-import time
-from concurrent.futures import ThreadPoolExecutor
-
-def test_concurrent_requests():
-    """Test system under concurrent load"""
-    def make_request():
-        # Make test request
-        return "result"
-    
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        start_time = time.time()
-        futures = [executor.submit(make_request) for _ in range(100)]
-        results = [f.result() for f in futures]
-        end_time = time.time()
-    
-    assert end_time - start_time < 5.0  # Should complete in 5 seconds
-```
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### License Summary
-- ✅ **Commercial Use**: Allowed
-- ✅ **Modification**: Allowed
-- ✅ **Distribution**: Allowed
-- ✅ **Private Use**: Allowed
-- ❌ **Liability**: No warranty provided
-- ❌ **Trademark**: No trademark rights granted
+## Acknowledgments
 
-## 👏 Acknowledgments
+We would like to thank the following individuals and organizations for their contributions and support:
 
-### Core Contributors
-- **Development Team**: For building this comprehensive platform
-- **Community Contributors**: For valuable feedback and improvements
-- **Early Adopters**: For testing and providing real-world usage insights
+- **OpenAI** for pioneering work in large language models
+- **HuggingFace** for the Transformers library and model hub
+- **Ollama** for local LLM management
+- **vLLM** for high-performance LLM inference
+- **The Python Community** for excellent tools and libraries
+- **All Contributors** who have helped shape this project
 
-### Technology Partners
-- **Open Source Community**: For the amazing libraries and frameworks
-- **LLM Providers**: For their powerful AI models and APIs
-- **Cloud Providers**: For infrastructure and deployment platforms
+## Contact
 
-### Special Thanks
-- **Beta Testers**: For helping identify and fix issues
-- **Documentation Team**: For creating comprehensive guides
-- **Security Researchers**: For helping identify and fix vulnerabilities
+For support, questions, or contributions, please join our Discord community:
 
----
+https://discord.gg/fTtyhu38
 
-**Built with ❤️ by the Open LLM community**
-
----
-
-For more information, visit our [GitHub Repository](https://github.com/bozozeclown/open_llm) or join our [Discord Community](https://discord.gg/fTtyhu38).
+We're active on Discord and happy to help with any questions or issues you may have.
