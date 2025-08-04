@@ -470,7 +470,7 @@ python -c "from modules.registry import ModuleRegistry; print('✅ Registry OK')
 - **Documentation**: [Wiki](https://github.com/bozozeclown/open_llm/wiki)
 - **Issues**: [GitHub Issues](https://github.com/bozozeclown/open_llm/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/bozozeclown/open_llm/discussions)
-- **Discord**: [Community Server](https://discord.gg/SQ9aafpY)
+- **Discord**: [Community Server](https://discord.gg/fTtyhu38)
 
 ## 📄 License
 
