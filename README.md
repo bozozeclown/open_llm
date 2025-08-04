@@ -1,6 +1,6 @@
 # Open LLM Code Assistant
 
-An AI-powered coding assistant with hybrid reasoning, self-learning capabilities, and multi-LLM orchestration.
+An AI-powered coding assistant with hybrid reasoning, self-learning capabilities, multi-LLM orchestration, and comprehensive enterprise features.
 
 ## ✨ Features
 
@@ -21,8 +21,19 @@ An AI-powered coding assistant with hybrid reasoning, self-learning capabilities
 - **ML Model Management** - Automated model updates and versioning
 - **Knowledge Graph Versioning** - Track and restore knowledge graph states
 
+### Offline & Voice Support
+- **Offline Mode** - Cache responses for use without internet connectivity
+- **Voice Commands** - Natural language interaction with wake word detection
+- **CLI Tool** - Command-line interface for all major features
+
+### Enterprise Features
+- **SSO Integration** - OAuth2 (Google, Microsoft, GitHub) and SAML 2.0 support
+- **Team Management** - Role-based permissions, member invitation, resource sharing
+- **Audit Logging** - Comprehensive compliance tracking with searchable audit trails
+- **Enterprise Deployment** - Production-ready with high availability and monitoring
+
 ### Security & Reliability
-- **Authentication & Authorization** - API key-based access control
+- **Authentication & Authorization** - API key-based access and JWT tokens
 - **Rate Limiting** - Advanced throttling with multiple strategies
 - **Circuit Breakers** - Resilient error handling and failover
 - **Health Monitoring** - Comprehensive system health checks
@@ -33,7 +44,7 @@ An AI-powered coding assistant with hybrid reasoning, self-learning capabilities
 ### Prerequisites
 - Python 3.8+
 - Redis (for caching)
-- PostgreSQL (for analytics)
+- PostgreSQL (for analytics and enterprise features)
 - Docker (optional, for containerized deployment)
 - GPU (optional, for optimal performance with local models)
 
@@ -66,20 +77,38 @@ plugins:
 
 3. Set environment variables:
 ```bash
+# API Keys
 export GROQ_API_KEY="your_groq_api_key"
 export HF_API_KEY="your_huggingface_api_key"
 export TEXTGEN_API_KEY="your_textgen_api_key"
+
+# Database
+export DATABASE_URL="postgresql://user:password@localhost:5432/openllm"
+export REDIS_URL="redis://localhost:6379"
+
+# Security
+export SECRET_KEY="your_secret_key_here"
+export JWT_SECRET="your_jwt_secret_here"
+
+# Enterprise Features (optional)
+export ENTERPRISE_ENABLED="true"
+export SAML_IDP_METADATA_URL="your_idp_metadata_url"
 ```
 
-### Docker Deployment (Optional)
+### Docker Deployment
 ```bash
-# Build and run with Docker Compose
+# Standard deployment
+docker-compose up -d
+
+# Enterprise deployment with all features
+cd deploy/enterprise
 docker-compose up -d
 
 # Access the application
 # Web Interface: http://localhost:8000
 # Analytics Dashboard: http://localhost:8000/analytics/dashboard
 # Grafana: http://localhost:3000
+# Kibana: http://localhost:5601
 ```
 
 ## 📖 Usage
@@ -91,6 +120,28 @@ python -m core.service
 ```
 
 Access the web interface at `http://localhost:8000`
+
+### CLI Tool
+Install the CLI tool:
+```bash
+pip install -e .
+```
+
+Usage examples:
+```bash
+# Ask coding questions
+openllm query "How to reverse a list in Python?"
+
+# Analyze code files
+openllm analyze -f my_code.py --language python --type refactor
+
+# Create collaboration sessions
+openllm session "My Session" --code "print('Hello World')" --language python
+
+# Manage knowledge graph versions
+openllm version create "Added optimization patterns"
+openllm version list
+```
 
 ### API Usage
 ```python
@@ -126,9 +177,25 @@ restored = client.restore_version(version_id)
 }
 ```
 
-### Keyboard Shortcuts
-- `Ctrl+Shift+C` (Windows/Linux) / `Cmd+Shift+C` (Mac) - Get code suggestion
-- `Ctrl+Shift+R` (Windows/Linux) / `Cmd+Shift+R` (Mac) - Analyze refactoring opportunities
+### Voice Commands
+Enable voice interaction:
+```bash
+# Start voice listening
+curl -X POST http://localhost:8000/voice/command
+
+# Say "Hey assistant, how do I reverse a list in Python?"
+# The system will respond with voice and process your query
+
+# Stop voice listening
+curl -X POST http://localhost:8000/voice/stop
+```
+
+### Offline Mode
+The system automatically caches responses for offline use:
+```python
+# Works without internet connection using cached responses
+response = client.query("How to reverse a list in Python?")  # Returns cached response
+```
 
 ## 📊 Analytics Dashboard
 
@@ -137,6 +204,7 @@ Access the comprehensive analytics dashboard at `http://localhost:8000/analytics
 - **Performance Metrics**: Response times, latency distribution
 - **User Analytics**: Activity patterns, top users
 - **Code Quality Trends**: Language distribution, refactoring patterns
+- **Enterprise Metrics**: Team activities, audit logs, compliance tracking
 
 ## 🔧 Configuration
 
@@ -148,7 +216,7 @@ HF_API_KEY="your_huggingface_api_key"
 TEXTGEN_API_KEY="your_textgen_api_key"
 
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/open_llm"
+DATABASE_URL="postgresql://user:password@localhost:5432/openllm"
 REDIS_URL="redis://localhost:6379"
 
 # Security
@@ -158,6 +226,13 @@ JWT_SECRET="your_jwt_secret_here"
 # Monitoring
 PROMETHEUS_ENABLED=true
 GRAFANA_ENABLED=true
+
+# Enterprise Features
+ENTERPRISE_ENABLED="true"
+SAML_IDP_METADATA_URL="your_idp_metadata_url"
+SP_ENTITY_ID="your_sp_entity_id"
+SP_KEY_FILE="/path/to/sp_key.pem"
+SP_CERT_FILE="/path/to/sp_cert.pem"
 ```
 
 ### Model Management
@@ -175,54 +250,36 @@ model_info = manager.get_model_info(ModelType.MULTIMODAL)
 print(f"Model status: {model_info.status}")
 ```
 
-### Knowledge Graph Versioning
+### Enterprise Configuration
 ```python
-from core.versioning import KnowledgeVersioner
-
-versioner = KnowledgeVersioner(knowledge_graph)
-
-# Create a version
-version_id = versioner.create_version(
-    description="Added Python optimization patterns",
-    author="developer",
-    tags=["python", "optimization"]
-)
-
-# List all versions
-versions = versioner.list_versions()
-
-# Restore to a previous version
-success = versioner.restore_version(version_id)
+# Configure SSO providers
+enterprise_config = {
+    "oauth": {
+        "google": {
+            "enabled": true,
+            "client_id": "your_google_client_id",
+            "client_secret": "your_google_client_secret",
+            "user_info_url": "https://www.googleapis.com/oauth2/v2/userinfo",
+            "scopes": ["openid", "email", "profile"]
+        },
+        "microsoft": {
+            "enabled": true,
+            "client_id": "your_microsoft_client_id",
+            "client_secret": "your_microsoft_client_secret",
+            "user_info_url": "https://graph.microsoft.com/v1.0/me",
+            "scopes": ["openid", "email", "profile"]
+        }
+    },
+    "saml": {
+        "enabled": true,
+        "sp_entity_id": "https://your-domain.com/metadata",
+        "acs_url": "https://your-domain.com/saml/acs",
+        "idp_metadata_url": "https://your-idp.com/metadata",
+        "sp_key_file": "/path/to/sp_key.pem",
+        "sp_cert_file": "/path/to/sp_cert.pem"
+    }
+}
 ```
-
-## 🧪 Testing
-
-Run the comprehensive test suite:
-```bash
-# Run all tests
-pytest tests/
-
-# Run specific test categories
-pytest tests/unit/
-pytest tests/integration/
-pytest tests/performance/
-
-# Run with coverage
-pytest --cov=core tests/
-
-# Verify consistency
-python -c "from core.orchestrator import Orchestrator; print('✅ Orchestrator imports correctly')"
-python -c "from core.service import AIService; print('✅ Service imports correctly')"
-python -c "from modules.registry import ModuleRegistry; print('✅ Module registry imports correctly')"
-```
-
-## 📈 Performance
-
-The system is optimized for:
-- **High Throughput**: 100+ requests per second
-- **Low Latency**: <2s average response time
-- **Memory Efficiency**: Optimized database queries and caching
-- **Scalability**: Horizontal scaling with Docker and load balancing
 
 ## 🛠️ Development
 
@@ -237,84 +294,50 @@ open_llm/
 │   └── sla_tiers.yaml        # Service level agreements
 ├── core/                      # Core application logic
 │   ├── analysis/              # Code analysis components
-│   │   └── advanced_analyzer.py
 │   ├── analytics/             # Analytics dashboard
-│   │   └── dashboard.py
 │   ├── collaboration/        # Real-time collaboration
-│   │   └── session_manager.py
 │   ├── completion/            # Code completion
-│   │   └── intelligent_completer.py
 │   ├── context.py             # Context and knowledge management
 │   ├── database/             # Database management
-│   │   └── optimized_manager.py
 │   ├── debugging/            # Debugging tools
-│   │   └── debugger.py
+│   ├── enterprise/            # Enterprise features
+│   │   ├── auth/             # Authentication (SSO, SAML)
+│   │   ├── teams/            # Team management
+│   │   └── audit/            # Audit logging
 │   ├── errors/               # Error handling
-│   │   ├── handlers.py
-│   │   └── resilience.py
 │   ├── feedback/             # User feedback processing
-│   │   └── processor.py
 │   ├── health.py             # Health monitoring
 │   ├── integrations/         # LLM provider integrations
-│   │   ├── __init__.py
-│   │   ├── grok.py
-│   │   ├── huggingface.py
-│   │   ├── lmstudio.py
-│   │   ├── manager.py
-│   │   ├── ollama.py
-│   │   ├── textgen.py
-│   │   └── vllm.py
 │   ├── interface.py          # API interface
 │   ├── ml/                   # Machine learning
-│   │   └── model_manager.py
 │   ├── multimodal/           # Multi-modal analysis
-│   │   └── image_analyzer.py
+│   ├── offline/              # Offline support
 │   ├── monitoring/           # Performance monitoring
-│   │   └── service.py
 │   ├── orchestration/        # Request orchestration
-│   │   ├── budget_router.py
-│   │   ├── load_balancer.py
-│   │   └── sla_router.py
 │   ├── orchestrator.py       # Main orchestrator
 │   ├── performance/          # Performance optimization
-│   │   ├── cost.py
-│   │   ├── hashing.py
-│   │   ├── optimization.py
-│   │   └── tracker.py
 │   ├── personalization/      # User personalization
-│   │   └── user_profile.py
 │   ├── plugin.py             # Plugin system
 │   ├── prediction/           # Predictive caching
-│   │   ├── cache.py
-│   │   └── warmer.py
 │   ├── processing/           # Request processing
-│   │   └── batcher.py
 │   ├── reasoning/            # Reasoning engine
-│   │   ├── engine.py
-│   │   └── rules.py
 │   ├── refactoring/          # Code refactoring
-│   │   └── refactor_engine.py
 │   ├── security/             # Security features
-│   │   ├── auth.py
-│   │   └── rate_limiter.py
 │   ├── self_healing.py       # Self-healing system
 │   ├── self_learning/        # Self-learning capabilities
-│   │   ├── engine.py
-│   │   └── rule_applier.py
 │   ├── service.py            # Main service entry point
 │   ├── signature_help.py     # Code signature help
 │   ├── state_manager.py      # Session state management
 │   ├── testing/              # Test generation
-│   │   └── test_generator.py
 │   ├── ux/                   # User experience
-│   │   └── enhanced_error_handler.py
 │   ├── validation/           # Response validation
-│   │   └── quality_gates.py
-│   └── versioning/           # Knowledge versioning
-│       └── __init__.py
+│   ├── versioning/           # Knowledge versioning
+│   └── voice/                # Voice support
 ├── deploy/                   # Deployment configuration
-│   └── docker/
-│       └── docker-compose.yml
+│   ├── docker/
+│   │   └── docker-compose.yml
+│   └── enterprise/
+│       └── docker-compose.enterprise.yml
 ├── docs/                     # Documentation
 │   └── DEVELOPER_GUIDE.md
 ├── modules/                  # Processing modules
@@ -332,33 +355,26 @@ open_llm/
 │   └── prometheus.yml
 ├── shared/                   # Shared components
 │   ├── config/               # Configuration management
-│   │   ├── init.py
-│   │   └── loader.py
 │   ├── knowledge/            # Knowledge graph
-│   │   └── graph.py
 │   └── schemas.py            # Data schemas
 ├── static/                   # Static web assets
 │   ├── css/                  # Stylesheets
-│   │   ├── debugger.css
-│   │   ├── graph.css
-│   │   └── signature.css
 │   ├── js/                   # JavaScript
-│   │   ├── completion.js
-│   │   ├── debugger.js
-│   │   ├── graph-explorer.js
-│   │   └── signature.js
 │   └── templates/            # HTML templates
-│       └── index.html
 ├── tests/                    # Test suite
 │   ├── conftest.py
 │   ├── integration/          # Integration tests
-│   │   ├── test_multimodal.py
-│   │   ├── test_refactoring.py
-│   │   └── test_collaboration.py
 │   ├── performance/          # Performance tests
-│   │   └── test_performance.py
+│   ├── enterprise/           # Enterprise tests
 │   └── test_orchestrator.py
 ├── vscode-extension/          # VS Code extension
+│   └── package.json
+├── cli/                      # Command-line interface
+│   ├── commands/
+│   ├── config.py
+│   └── main.py
+├── mobile-app/               # React Native mobile app
+│   ├── src/
 │   └── package.json
 ├── .env                      # Environment variables
 ├── .gitignore               # Git ignore rules
@@ -371,10 +387,13 @@ open_llm/
 ### Key Components
 
 #### Core System (`core/`)
-- **Orchestrator**: Central query processing and routing
+- **Orchestrator**: Central query processing and routing with offline support
 - **Integrations**: Plugin system for LLM providers (Ollama, vLLM, HuggingFace, etc.)
 - **Context**: Knowledge graph management and interaction tracking
 - **Analytics**: Real-time monitoring dashboard
+- **Enterprise**: SSO, team management, audit logging, compliance
+- **Offline**: Cache management for offline operation
+- **Voice**: Speech recognition and synthesis
 - **Collaboration**: Live coding session management
 - **Multimodal**: Image-based code analysis
 - **Refactoring**: Intelligent code improvement suggestions
@@ -386,6 +405,11 @@ open_llm/
 - Specialized processing units for different tasks (Python, debugging, completion, etc.)
 - Extensible plugin architecture
 - Registry for dynamic module discovery and loading
+
+#### Enterprise Features (`core/enterprise/`)
+- **Authentication**: OAuth2 and SAML 2.0 integration for enterprise SSO
+- **Teams**: Role-based access control, member management, resource sharing
+- **Audit**: Comprehensive compliance logging with searchable audit trails
 
 #### Configuration (`configs/`)
 - Centralized configuration management
@@ -414,7 +438,40 @@ uvicorn core.service:app --reload
 python -c "from core.orchestrator import Orchestrator; print('✅ Orchestrator OK')"
 python -c "from core.service import AIService; print('✅ Service OK')"
 python -c "from modules.registry import ModuleRegistry; print('✅ Registry OK')"
+python -c "from core.enterprise.auth import EnterpriseAuthManager; print('✅ Enterprise Auth OK')"
 ```
+
+## 🧪 Testing
+
+Run the comprehensive test suite:
+```bash
+# Run all tests
+pytest tests/
+
+# Run specific test categories
+pytest tests/unit/
+pytest tests/integration/
+pytest tests/performance/
+pytest tests/enterprise/
+
+# Run with coverage
+pytest --cov=core tests/
+
+# Verify project consistency
+python -c "from core.orchestrator import Orchestrator; print('✅ Orchestrator OK')"
+python -c "from core.service import AIService; print('✅ Service OK')"
+python -c "from modules.registry import ModuleRegistry; print('✅ Registry OK')"
+python -c "from core.enterprise.auth import EnterpriseAuthManager; print('✅ Enterprise Auth OK')"
+```
+
+## 📈 Performance
+
+The system is optimized for:
+- **High Throughput**: 100+ requests per second
+- **Low Latency**: <2s average response time
+- **Memory Efficiency**: Optimized database queries and caching
+- **Scalability**: Horizontal scaling with Docker and load balancing
+- **Enterprise Ready**: High availability, audit compliance, team management
 
 ## 📋 TO DO
 
@@ -440,30 +497,33 @@ python -c "from modules.registry import ModuleRegistry; print('✅ Registry OK')
 - [x] Add database optimization
 - [x] Implement knowledge graph versioning system
 - [x] Fix all import and naming inconsistencies
-- [x] Ensure project-wide consistency
+- [x] Add CLI tool for command-line usage
+- [x] Implement offline mode capabilities
+- [x] Add voice command support
+- [x] Create mobile app structure (React Native)
+- [x] Implement enterprise SSO integration (OAuth2, SAML)
+- [x] Add team management and role-based permissions
+- [x] Implement comprehensive audit logging and compliance
+- [x] Create enterprise deployment templates
 
 ### 🚧 In Progress
-- [ ] Add mobile app support (React Native)
-- [ ] Implement offline mode capabilities
-- [ ] Add voice command support
-- [ ] Create CLI tool for command-line usage
+- [ ] Add mobile app UI implementation
+- [ ] Implement advanced AI capabilities (code generation from natural language)
+- [ ] Add ecosystem integrations (GitHub, GitLab, Jira, Slack/Teams)
 
 ### 📋 Next Phase
-- [ ] **Enterprise Features**
-  - [ ] Add SSO integration (OAuth2, SAML)
-  - [ ] Implement team management and permissions
-  - [ ] Add audit logging and compliance features
-  - [ ] Create enterprise deployment templates
 - [ ] **Advanced AI Capabilities**
-  - [ ] Implement code generation from natural language specifications
-  - [ ] Add automated test generation
-  - [ ] Implement bug prediction and prevention
-  - [ ] Add code documentation generation
+  - [ ] Implement automated test generation
+  - [ ] Add bug prediction and prevention
+  - [ ] Implement code documentation generation
 - [ ] **Ecosystem Integration**
   - [ ] Integrate with GitHub/GitLab for seamless workflow
   - [ ] Add Jira integration for issue tracking
-  - [ ] Implement Slack/Teams bot integration
   - [ ] Create browser extension for web-based IDEs
+- [ ] **Performance Enhancements**
+  - [ ] Implement distributed caching cluster
+  - [ ] Add horizontal scaling with Kubernetes
+  - [ ] Implement edge caching for global users
 
 ## 🤝 Community
 
@@ -481,6 +541,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Open Source Community**: For the amazing libraries and tools that make this project possible
 - **Contributors**: Everyone who has helped shape this project
 - **Early Adopters**: For providing valuable feedback and suggestions
+- **Enterprise Partners**: For guidance on compliance and security requirements
 
 ---
 

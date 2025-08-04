@@ -11,6 +11,8 @@ from core.reasoning.engine import HybridEngine
 from core.prediction.warmer import CacheWarmer
 from core.monitoring.service import Monitoring
 from core.processing.batcher import AdaptiveBatcher
+from core.offline import OfflineManager  # Added: Offline support
+from core.voice import VoiceAssistant  # Added: Voice support
 import logging
 import asyncio
 import numpy as np
@@ -36,6 +38,13 @@ class Orchestrator:
         self.reasoning = reasoning_engine
         self.monitor = monitoring
         self.logger = logging.getLogger("orchestrator")
+        
+        # Initialize offline support
+        self.offline_manager = OfflineManager()
+        
+        # Initialize voice assistant
+        self.voice_assistant = VoiceAssistant()
+        
         self.cache_warmer = CacheWarmer(self, self.context.cache_predictor)
         self.batcher = AdaptiveBatcher(
             max_batch_size=self.context.config.get("batching.max_size", 8),
@@ -64,8 +73,19 @@ class Orchestrator:
     
     @self.monitor.track_request('orchestrator')
     async def route_query(self, query: Query) -> Response:
-        """Enhanced query processing pipeline"""
+        """Enhanced query processing pipeline with offline support"""
         try:
+            # Check offline cache first (unless forced online)
+            if not query.metadata.get("force_online", False):
+                cached_response = self.offline_manager.get_cached_response(query.content)
+                if cached_response:
+                    # Convert cached dict back to Response object
+                    response = Response(**cached_response)
+                    response.metadata = response.metadata or {}
+                    response.metadata["source"] = "offline_cache"
+                    self.logger.info(f"Returned cached response for query: {query.content[:50]}...")
+                    return response
+            
             # 1. Get context and routing info
             pre_context = self.context.get_context(query.content)
             
@@ -131,7 +151,15 @@ class Orchestrator:
                 }
             )
             
-            # 5. Learn and cache
+            # 5. Cache the response for offline use (if cacheable)
+            if final_response.metadata.get("cacheable", True):
+                self.offline_manager.cache_response(
+                    query.content,
+                    final_response.model_dump(),
+                    ttl_hours=24
+                )
+            
+            # 6. Learn and cache
             self.context.process_interaction(
                 query,
                 final_response,
@@ -148,7 +176,20 @@ class Orchestrator:
             
         except Exception as e:
             self.logger.error(f"Routing failed: {str(e)}")
-            return await self._handle_failure(query, e)
+            
+            # Fallback to offline mode if online fails and not forced online
+            if not query.metadata.get("force_online", False):
+                cached_response = self.offline_manager.get_cached_response(query.content)
+                if cached_response:
+                    response = Response(**cached_response)
+                    response.metadata = response.metadata or {}
+                    response.metadata["source"] = "offline_fallback"
+                    response.metadata["warning"] = "Using cached response (offline mode)"
+                    self.logger.warning(f"Using offline fallback for query: {query.content[:50]}...")
+                    return response
+            
+            # If no cached response, raise the original error
+            raise e
     
     async def _batch_process(self, batch: List[Dict]) -> Response:
         """Process batched queries through LLM"""
@@ -243,3 +284,57 @@ class Orchestrator:
         """Fallback strategy for quality failures"""
         query.metadata["require_quality"] = True
         return await self.route_query(query)
+    
+    # Voice command processing methods
+    async def process_voice_command(self, command: str) -> Response:
+        """Process a voice command and return response"""
+        self.logger.info(f"Processing voice command: {command}")
+        
+        # Map voice commands to actions
+        if "help" in command.lower():
+            return Response(
+                content="I can help you with coding questions, code analysis, and collaboration sessions. Just ask!",
+                metadata={"source": "voice", "command_type": "help"}
+            )
+        
+        elif "code" in command.lower() and "reverse" in command.lower() and "list" in command.lower():
+            # Example: "how do I reverse a list in python"
+            response = await self.route_query(Query(
+                content="How to reverse a list in Python?",
+                metadata={"source": "voice", "command_type": "query"}
+            ))
+            return response
+        
+        elif "analyze" in command.lower() and "code" in command.lower():
+            return Response(
+                content="Please specify which file you'd like me to analyze.",
+                metadata={"source": "voice", "command_type": "analyze_request"}
+            )
+        
+        elif "session" in command.lower() and "create" in command.lower():
+            return Response(
+                content="What would you like to name your collaboration session?",
+                metadata={"source": "voice", "command_type": "session_request"}
+            )
+        
+        elif "stop" in command.lower() or "exit" in command.lower():
+            return Response(
+                content="Goodbye!",
+                metadata={"source": "voice", "command_type": "exit"}
+            )
+        
+        else:
+            # Default: treat as a coding question
+            response = await self.route_query(Query(
+                content=command,
+                metadata={"source": "voice", "command_type": "query"}
+            ))
+            return response
+    
+    def get_offline_stats(self) -> Dict[str, Any]:
+        """Get offline cache statistics"""
+        return self.offline_manager.get_cache_stats()
+    
+    def cleanup_offline_cache(self):
+        """Clean up expired offline cache entries"""
+        self.offline_manager.cleanup_expired_cache()
