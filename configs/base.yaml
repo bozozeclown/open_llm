@@ -1,15 +1,31 @@
+# =============================================================================
+# Base Project Configuration
+# =============================================================================
 project:
   name: "AI-code-assistant"
-  version: "0.0.1"
-  
+  version: "0.1.0"
+  description: "AI-powered coding assistant with multi-LLM support"
+
+# =============================================================================
+# File Paths
+# =============================================================================
 paths:
   data_raw: "./data/raw"
   data_processed: "./data/processed"
   model_checkpoints: "./models"
-  
+  logs: "./logs"
+  static: "./static"
+  templates: "./templates"
+
+# =============================================================================
+# Supported Programming Languages
+# =============================================================================
 languages:
   priority: ["python", "csharp", "c", "javascript", "typescript", "html", "css"]
   
+# =============================================================================
+# Quality Standards
+# =============================================================================
 quality_standards:
   min_complexity: 0.4  # 0-1 scale
   required_keys: ["answer", "explanation"]  # For structured responses
@@ -17,3 +33,23 @@ quality_standards:
     - "eval("
     - "system("
     - "os.popen"
+    - "subprocess.run"
+    - "exec("
+
+# =============================================================================
+# Security Settings
+# =============================================================================
+security:
+  allowed_hosts: ["localhost", "127.0.0.1"]
+  cors_origins: ["http://localhost:3000", "http://localhost:8000"]
+  max_request_size: 10485760  # 10MB
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "./logs/app.log"
+  max_size: "10MB"
+  backup_count: 5

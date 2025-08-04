@@ -1,74 +1,82 @@
-integrations:
-  # Plugin configurations
-  plugins:
-    ollama:
-      enabled: true
-      config:
-        base_url: "http://localhost:11434"
-        default_model: "codellama"
-        timeout: 30
-        batch_size: 4  # Added batching support
+# =============================================================================
+# LLM Provider Integration Configuration
+# =============================================================================
+plugins:
+  # Ollama (Local Models)
+  ollama:
+    enabled: true
+    config:
+      base_url: "http://localhost:11434"
+      default_model: "codellama"
+      timeout: 30
+      batch_size: 1
 
-    vllm:
-      enabled: true
-      config:
-        model: "codellama/CodeLlama-7b-hf"
-        tensor_parallel_size: 1
-        gpu_memory_utilization: 0.9
-        max_batch_size: 2048  # Tokens
+  # vLLM (High-Performance Inference)
+  vllm:
+    enabled: true
+    config:
+      model: "codellama/CodeLlama-7b-hf"
+      tensor_parallel_size: 1
+      gpu_memory_utilization: 0.9
+      max_batch_size: 2048
 
-    textgen:
-      enabled: true
-      config:
-        base_url: "http://localhost:5000"
-        api_key: "${TEXTGEN_API_KEY}"  # From environment
-        batch_size: 4
-        timeout: 45
+  # HuggingFace Transformers
+  huggingface:
+    enabled: false  # Disabled by default due to resource requirements
+    config:
+      api_key: "${HF_API_KEY}"
+      model_name: "codellama/CodeLlama-7b-hf"
+      device: "auto"
+      quantize: false
+      batch_size: 2
 
-    huggingface:
-      enabled: false  # Disabled by default
-      config:
-        api_key: "${HF_API_KEY}"
-        model_name: "codellama/CodeLlama-7b-hf"
-        device: "auto"
-        quantize: false
-        batch_size: 2
+  # Text Generation WebUI
+  textgen:
+    enabled: true
+    config:
+      base_url: "http://localhost:5000"
+      api_key: "${TEXTGEN_API_KEY}"
+      batch_size: 4
+      timeout: 45
 
-    grok:
-      enabled: true
-      config:
-        api_key: "${GROQ_API_KEY}"
-        rate_limit: 5  # Requests per minute
-        timeout: 15
+  # Grok AI
+  grok:
+    enabled: true
+    config:
+      api_key: "${GROQ_API_KEY}"
+      rate_limit: 5
+      timeout: 15
 
-    lmstudio:
-      enabled: false  # Disabled by default
-      config:
-        base_url: "http://localhost:1234"
-        timeout: 60
-        batch_support: false
+  # LM Studio
+  lmstudio:
+    enabled: false  # Disabled by default
+    config:
+      base_url: "http://localhost:1234"
+      timeout: 60
+      batch_support: false
 
-  # Global integration settings
-  settings:
-    default_timeout: 30  # Fallback timeout
-    priority_order:  # Execution priority
-      - "vllm"
-      - "ollama" 
-      - "grok"
-      - "huggingface"
-      - "textgen"
-      - "lmstudio"
+# Global integration settings
+settings:
+  default_timeout: 30
+  priority_order:
+    - "vllm"
+    - "ollama" 
+    - "grok"
+    - "huggingface"
+    - "textgen"
+    - "lmstudio"
 
-    # Batch processing defaults
-    batching:
-      enabled: true
-      max_batch_size: 8
-      max_wait_ms: 50
+# Batch processing settings
+batching:
+  enabled: true
+  max_batch_size: 8
+  max_wait_ms: 50
 
-    # Monitoring
-    health_check_interval: 60  # Seconds
-  
-  load_balancing:
-    update_interval: 10  # Seconds
-    min_requests: 20     # Minimum data points before activating
-    priority_bump: 2.0   # Weight multiplier for high-priority queries
+# Monitoring settings
+health_check_interval: 60
+
+# Load balancing settings
+load_balancing:
+  update_interval: 10
+  min_requests: 20
+  priority_bump: 2.0

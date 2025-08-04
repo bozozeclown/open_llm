@@ -1,0 +1,24 @@
+# =============================================================================
+# Quality Standards Configuration
+# =============================================================================
+quality_standards:
+  # Minimum complexity threshold (0-1 scale)
+  min_complexity: 0.4
+  
+  # Required keys in structured responses
+  required_keys: ["answer", "explanation"]
+  
+  # Banned code patterns for security
+  banned_patterns:
+    - "eval("
+    - "system("
+    - "os.popen"
+    - "subprocess.run"
+    - "exec("
+    - "__import__"
+  
+  # Maximum response length
+  max_response_length: 5000
+  
+  # Minimum confidence score
+  min_confidence: 0.7

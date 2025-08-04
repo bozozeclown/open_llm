@@ -25,7 +25,7 @@ Welcome to the official documentation for the Open LLM Code Assistant. This comp
 
 ## Getting Help
 
-- **Community**: Join our [Discord Server](https://discord.gg/openllm)
+- **Community**: Join our [Discord Server](https://discord.gg/fTtyhu38)
 - **Issues**: [GitHub Issues](https://github.com/bozozeclown/open_llm/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/bozozeclown/open_llm/discussions)
 

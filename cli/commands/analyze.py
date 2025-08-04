@@ -1,14 +1,19 @@
 import click
 import requests
 import json
+import os
 from pathlib import Path
 from typing import Dict, Any
 
 def analyze_command(ctx, file_path: str, language: str, analysis_type: str):
     """Execute code analysis command"""
     config = ctx.obj['config']
-    api_url = config.get('api_url')
+    api_url = config.get('api_url', 'http://localhost:8000')
     api_key = config.get('api_key')
+    
+    if not api_key:
+        click.echo("❌ API key not configured. Please set OPENLLM_API_KEY environment variable", err=True)
+        return
     
     # Read the file
     try:
@@ -42,7 +47,7 @@ def analyze_command(ctx, file_path: str, language: str, analysis_type: str):
             f"{api_url}/process",
             headers=headers,
             json=payload,
-            timeout=config.get('timeout', 60)  # Longer timeout for analysis
+            timeout=config.get('timeout', 60)
         )
         
         if response.status_code == 200:

@@ -1,3 +1,8 @@
+I'll provide complete, updated versions of both files based on all the fixes and improvements we've discussed.
+
+## Updated README.md (Complete)
+
+```markdown
 # Open LLM Code Assistant
 
 An AI-powered coding assistant with hybrid reasoning, self-learning capabilities, multi-LLM orchestration, and comprehensive enterprise features.
@@ -12,25 +17,20 @@ An AI-powered coding assistant with hybrid reasoning, self-learning capabilities
 - **Quality Gates** - Automated validation of all responses
 - **Predictive Caching** - Anticipates and pre-computes likely queries
 
-### Advanced Capabilities
-- **Multi-Modal Code Analysis** - Extract and analyze code from images/screenshots
-- **Advanced Refactoring Engine** - Intelligent code improvement suggestions
+### Available Features
+- **Code Analysis** - Static code analysis and improvement suggestions
+- **Multi-Modal Support** - Extract and analyze code from images (requires Tesseract)
 - **Real-time Collaboration** - Live coding sessions with multiple users
-- **VS Code Extension** - Seamless IDE integration
-- **Comprehensive Analytics Dashboard** - Real-time metrics and insights
-- **ML Model Management** - Automated model updates and versioning
-- **Knowledge Graph Versioning** - Track and restore knowledge graph states
+- **Knowledge Graph** - Track and explore code relationships
+- **CLI Tool** - Command-line interface for major features
+- **REST API** - Programmatic access to all features
+- **Web Dashboard** - Analytics and monitoring interface
 
-### Offline & Voice Support
-- **Offline Mode** - Cache responses for use without internet connectivity
-- **Voice Commands** - Natural language interaction with wake word detection
-- **CLI Tool** - Command-line interface for all major features
-
-### Enterprise Features
-- **SSO Integration** - OAuth2 (Google, Microsoft, GitHub) and SAML 2.0 support
-- **Team Management** - Role-based permissions, member invitation, resource sharing
-- **Audit Logging** - Comprehensive compliance tracking with searchable audit trails
-- **Enterprise Deployment** - Production-ready with high availability and monitoring
+### Enterprise Features (Optional)
+- **SSO Integration** - OAuth2 and SAML 2.0 support
+- **Team Management** - Role-based permissions and resource sharing
+- **Audit Logging** - Comprehensive compliance tracking
+- **High Availability** - Production-ready deployment options
 
 ### Security & Reliability
 - **Authentication & Authorization** - API key-based access and JWT tokens
@@ -39,76 +39,81 @@ An AI-powered coding assistant with hybrid reasoning, self-learning capabilities
 - **Health Monitoring** - Comprehensive system health checks
 - **Performance Optimization** - Database optimization and caching
 
-## 🚀 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.8+
-- Redis (for caching)
-- PostgreSQL (for analytics and enterprise features)
-- Docker (optional, for containerized deployment)
-- GPU (optional, for optimal performance with local models)
+- PostgreSQL 13+
+- Redis 6+
+- Tesseract OCR (for image analysis)
 
-### Quick Start
+### 1. Clone and Install
 ```bash
 git clone https://github.com/bozozeclown/open_llm.git
 cd open_llm
+
+# Install system dependencies (Ubuntu/Debian example)
+sudo apt-get install postgresql redis-server tesseract-ocr libtesseract-dev
+
+# Set up Python environment
+python -m venv venv
+source venv/bin/activate
+
+# Install Python dependencies
 pip install -r requirements.txt
+python -m spacy download en_core_web_sm
 ```
 
-### Configuration
-1. Copy example configuration:
+### 2. Database Setup
 ```bash
-cp configs/integration.example.yaml configs/integration.yaml
+# Create database and user
+sudo -u postgres createuser --interactive  # Create 'openllm_user'
+sudo -u postgres createdb openllm
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE openllm TO openllm_user;"
+
+# Copy and configure environment
+cp .env.example .env
+nano .env  # Edit with your database credentials
 ```
 
-2. Edit `configs/integration.yaml` to enable your preferred LLM providers:
-```yaml
-plugins:
-  ollama:
-    enabled: true
-    config:
-      base_url: "http://localhost:11434"
-      default_model: "codellama"
-  vllm:
-    enabled: true
-    config:
-      model: "codellama/CodeLlama-7b-hf"
-```
-
-3. Set environment variables:
+### 3. Start Services
 ```bash
-# API Keys
-export GROQ_API_KEY="your_groq_api_key"
-export HF_API_KEY="your_huggingface_api_key"
-export TEXTGEN_API_KEY="your_textgen_api_key"
+# Start PostgreSQL and Redis
+sudo systemctl start postgresql
+sudo systemctl start redis-server
 
-# Database
-export DATABASE_URL="postgresql://user:password@localhost:5432/openllm"
-export REDIS_URL="redis://localhost:6379"
-
-# Security
-export SECRET_KEY="your_secret_key_here"
-export JWT_SECRET="your_jwt_secret_here"
-
-# Enterprise Features (optional)
-export ENTERPRISE_ENABLED="true"
-export SAML_IDP_METADATA_URL="your_idp_metadata_url"
+# Or use Docker (recommended)
+docker-compose up -d redis db
 ```
 
-### Docker Deployment
+### 4. Launch Application
 ```bash
-# Standard deployment
-docker-compose up -d
+# Start the main service
+python -m core.service
 
-# Enterprise deployment with all features
-cd deploy/enterprise
+# Or with custom configuration
+python -m core.service --host 0.0.0.0 --port 8000
+```
+
+### 5. Verify Installation
+```bash
+# Test health endpoint
+curl http://localhost:8000/health
+
+# Test API
+curl -X POST http://localhost:8000/process \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Hello, how are you?"}'
+```
+
+### Alternative: Docker Quick Start
+```bash
+# Using Docker Compose (includes all services)
 docker-compose up -d
 
 # Access the application
 # Web Interface: http://localhost:8000
-# Analytics Dashboard: http://localhost:8000/analytics/dashboard
-# Grafana: http://localhost:3000
-# Kibana: http://localhost:5601
+# Health Check: http://localhost:8000/health
 ```
 
 ## 📖 Usage
@@ -145,36 +150,31 @@ openllm version list
 
 ### API Usage
 ```python
-from client import OpenLLMClient
+import requests
+import json
 
-client = OpenLLMClient()
+# Basic query
+response = requests.post(
+    "http://localhost:8000/process",
+    headers={"Content-Type": "application/json"},
+    json={"content": "How to reverse a list in Python?"}
+)
+print(response.json()['content'])
 
-# Basic code completion
-response = client.query("How to reverse a list in Python?")
-print(response.content)
-
-# Code refactoring suggestions
-suggestions = client.analyze_refactoring("your_code_here", "python")
-
-# Multi-modal analysis
-analysis = client.analyze_image("path/to/code/image.png")
-
-# Real-time collaboration
-session = client.create_session("My Coding Session", "print('Hello World')", "python")
-
-# Knowledge graph versioning
-version_id = client.create_version("Initial knowledge state")
-restored = client.restore_version(version_id)
-```
-
-### VS Code Extension
-1. Install the Open LLM Code Assistant extension from the VS Code marketplace
-2. Configure your API endpoint in VS Code settings:
-```json
-{
-  "open-llm.apiUrl": "http://localhost:8000",
-  "open-llm.apiKey": "your_api_key"
-}
+# Code analysis
+response = requests.post(
+    "http://localhost:8000/process",
+    headers={"Content-Type": "application/json"},
+    json={
+        "content": "Analyze this Python code for improvements",
+        "context": {
+            "code": "def hello():\n    print('Hello World')",
+            "language": "python",
+            "analysis_type": "refactor"
+        }
+    }
+)
+print(response.json()['content'])
 ```
 
 ### Voice Commands
@@ -194,7 +194,12 @@ curl -X POST http://localhost:8000/voice/stop
 The system automatically caches responses for offline use:
 ```python
 # Works without internet connection using cached responses
-response = client.query("How to reverse a list in Python?")  # Returns cached response
+response = requests.post(
+    "http://localhost:8000/process",
+    headers={"Content-Type": "application/json"},
+    json={"content": "How to reverse a list in Python?"}
+)
+print(response.json()['content'])  # Returns cached response
 ```
 
 ## 📊 Analytics Dashboard
@@ -204,7 +209,6 @@ Access the comprehensive analytics dashboard at `http://localhost:8000/analytics
 - **Performance Metrics**: Response times, latency distribution
 - **User Analytics**: Activity patterns, top users
 - **Code Quality Trends**: Language distribution, refactoring patterns
-- **Enterprise Metrics**: Team activities, audit logs, compliance tracking
 
 ## 🔧 Configuration
 
@@ -216,38 +220,40 @@ HF_API_KEY="your_huggingface_api_key"
 TEXTGEN_API_KEY="your_textgen_api_key"
 
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/openllm"
+DATABASE_URL="postgresql://openllm_user:password@localhost:5432/openllm"
 REDIS_URL="redis://localhost:6379"
 
 # Security
 SECRET_KEY="your_secret_key_here"
 JWT_SECRET="your_jwt_secret_here"
 
-# Monitoring
-PROMETHEUS_ENABLED=true
-GRAFANA_ENABLED=true
-
-# Enterprise Features
-ENTERPRISE_ENABLED="true"
-SAML_IDP_METADATA_URL="your_idp_metadata_url"
-SP_ENTITY_ID="your_sp_entity_id"
-SP_KEY_FILE="/path/to/sp_key.pem"
-SP_CERT_FILE="/path/to/sp_cert.pem"
+# Application
+DEBUG=true
+ENVIRONMENT=development
+LOG_LEVEL=INFO
 ```
 
-### Model Management
-```python
-from core.ml.model_manager import ModelManager
-
-manager = ModelManager()
-
-# Download and load models
-await manager.download_model(ModelType.MULTIMODAL)
-await manager.load_model(ModelType.MULTIMODAL)
-
-# Check model status
-model_info = manager.get_model_info(ModelType.MULTIMODAL)
-print(f"Model status: {model_info.status}")
+### LLM Provider Configuration
+Edit `configs/integration.yaml`:
+```yaml
+plugins:
+  ollama:
+    enabled: true
+    config:
+      base_url: "http://localhost:11434"
+      default_model: "codellama"
+  
+  vllm:
+    enabled: true
+    config:
+      model: "codellama/CodeLlama-7b-hf"
+      tensor_parallel_size: 1
+  
+  grok:
+    enabled: true
+    config:
+      api_key: "${GROQ_API_KEY}"
+      rate_limit: 5
 ```
 
 ### Enterprise Configuration
@@ -258,25 +264,13 @@ enterprise_config = {
         "google": {
             "enabled": true,
             "client_id": "your_google_client_id",
-            "client_secret": "your_google_client_secret",
-            "user_info_url": "https://www.googleapis.com/oauth2/v2/userinfo",
-            "scopes": ["openid", "email", "profile"]
-        },
-        "microsoft": {
-            "enabled": true,
-            "client_id": "your_microsoft_client_id",
-            "client_secret": "your_microsoft_client_secret",
-            "user_info_url": "https://graph.microsoft.com/v1.0/me",
-            "scopes": ["openid", "email", "profile"]
+            "client_secret": "your_google_client_secret"
         }
     },
     "saml": {
         "enabled": true,
         "sp_entity_id": "https://your-domain.com/metadata",
-        "acs_url": "https://your-domain.com/saml/acs",
-        "idp_metadata_url": "https://your-idp.com/metadata",
-        "sp_key_file": "/path/to/sp_key.pem",
-        "sp_cert_file": "/path/to/sp_cert.pem"
+        "idp_metadata_url": "https://your-idp.com/metadata"
     }
 }
 ```
@@ -287,11 +281,6 @@ enterprise_config = {
 ```
 open_llm/
 ├── configs/                    # Configuration files
-│   ├── base.yaml              # Base project configuration
-│   ├── integration.yaml        # LLM provider integrations
-│   ├── model.yaml             # Model management settings
-│   ├── predictions.yaml       # Prediction caching settings
-│   └── sla_tiers.yaml        # Service level agreements
 ├── core/                      # Core application logic
 │   ├── analysis/              # Code analysis components
 │   ├── analytics/             # Analytics dashboard
@@ -301,9 +290,6 @@ open_llm/
 │   ├── database/             # Database management
 │   ├── debugging/            # Debugging tools
 │   ├── enterprise/            # Enterprise features
-│   │   ├── auth/             # Authentication (SSO, SAML)
-│   │   ├── teams/            # Team management
-│   │   └── audit/            # Audit logging
 │   ├── errors/               # Error handling
 │   ├── feedback/             # User feedback processing
 │   ├── health.py             # Health monitoring
@@ -334,48 +320,15 @@ open_llm/
 │   ├── versioning/           # Knowledge versioning
 │   └── voice/                # Voice support
 ├── deploy/                   # Deployment configuration
-│   ├── docker/
-│   │   └── docker-compose.yml
-│   └── enterprise/
-│       └── docker-compose.enterprise.yml
 ├── docs/                     # Documentation
-│   └── DEVELOPER_GUIDE.md
 ├── modules/                  # Processing modules
-│   ├── base_module.py
-│   ├── module_ai.py
-│   ├── module_completion.py
-│   ├── module_debug.py
-│   ├── module_generic.py
-│   ├── module_python.py
-│   ├── module_signature.py
-│   └── registry.py
 ├── monitoring/               # Monitoring configuration
-│   ├── alert_rules.yml
-│   ├── dashboard.json
-│   └── prometheus.yml
 ├── shared/                   # Shared components
-│   ├── config/               # Configuration management
-│   ├── knowledge/            # Knowledge graph
-│   └── schemas.py            # Data schemas
 ├── static/                   # Static web assets
-│   ├── css/                  # Stylesheets
-│   ├── js/                   # JavaScript
-│   └── templates/            # HTML templates
 ├── tests/                    # Test suite
-│   ├── conftest.py
-│   ├── integration/          # Integration tests
-│   ├── performance/          # Performance tests
-│   ├── enterprise/           # Enterprise tests
-│   └── test_orchestrator.py
 ├── vscode-extension/          # VS Code extension
-│   └── package.json
 ├── cli/                      # Command-line interface
-│   ├── commands/
-│   ├── config.py
-│   └── main.py
 ├── mobile-app/               # React Native mobile app
-│   ├── src/
-│   └── package.json
 ├── .env                      # Environment variables
 ├── .gitignore               # Git ignore rules
 ├── package.json             # Node.js dependencies
@@ -383,38 +336,6 @@ open_llm/
 ├── requirements.txt          # Python dependencies
 └── webpack.config.js        # Webpack configuration
 ```
-
-### Key Components
-
-#### Core System (`core/`)
-- **Orchestrator**: Central query processing and routing with offline support
-- **Integrations**: Plugin system for LLM providers (Ollama, vLLM, HuggingFace, etc.)
-- **Context**: Knowledge graph management and interaction tracking
-- **Analytics**: Real-time monitoring dashboard
-- **Enterprise**: SSO, team management, audit logging, compliance
-- **Offline**: Cache management for offline operation
-- **Voice**: Speech recognition and synthesis
-- **Collaboration**: Live coding session management
-- **Multimodal**: Image-based code analysis
-- **Refactoring**: Intelligent code improvement suggestions
-- **Self-Learning**: System that improves from user interactions
-- **Versioning**: Knowledge graph state management and restoration
-- **Security**: Authentication, authorization, and rate limiting
-
-#### Modules (`modules/`)
-- Specialized processing units for different tasks (Python, debugging, completion, etc.)
-- Extensible plugin architecture
-- Registry for dynamic module discovery and loading
-
-#### Enterprise Features (`core/enterprise/`)
-- **Authentication**: OAuth2 and SAML 2.0 integration for enterprise SSO
-- **Teams**: Role-based access control, member management, resource sharing
-- **Audit**: Comprehensive compliance logging with searchable audit trails
-
-#### Configuration (`configs/`)
-- Centralized configuration management
-- Environment-specific settings
-- SLA tiers and quality standards
 
 ### Contributing
 1. Fork the repository
@@ -438,7 +359,6 @@ uvicorn core.service:app --reload
 python -c "from core.orchestrator import Orchestrator; print('✅ Orchestrator OK')"
 python -c "from core.service import AIService; print('✅ Service OK')"
 python -c "from modules.registry import ModuleRegistry; print('✅ Registry OK')"
-python -c "from core.enterprise.auth import EnterpriseAuthManager; print('✅ Enterprise Auth OK')"
 ```
 
 ## 🧪 Testing
@@ -452,7 +372,6 @@ pytest tests/
 pytest tests/unit/
 pytest tests/integration/
 pytest tests/performance/
-pytest tests/enterprise/
 
 # Run with coverage
 pytest --cov=core tests/
@@ -530,7 +449,7 @@ The system is optimized for:
 - **Documentation**: [Wiki](https://github.com/bozozeclown/open_llm/wiki)
 - **Issues**: [GitHub Issues](https://github.com/bozozeclown/open_llm/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/bozozeclown/open_llm/discussions)
-- **Discord**: [Community Server](https://discord.gg/fTtyhu38)
+- **Discord**: [Community Server](https://discord.gg/5VEMNdsyYs)
 
 ## 📄 License
 
